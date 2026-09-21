@@ -24,4 +24,6 @@ export async function getServerClient(businessId?: string): Promise<GraphQLClien
 /**
  * Cliente público para operaciones sin auth (ej: tariffTiers en registro)
  */
-export const publicClient = new GraphQLClient(ENDPOINT);
+export const publicClient = new GraphQLClient(ENDPOINT, {
+  fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+});
