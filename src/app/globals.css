@@ -1,0 +1,32 @@
+:root {
+  --color-primary: #6C47FF;
+  --color-accent: #C6FF3D;
+  --color-background: #F3EFE7;
+  --color-foreground: #121214;
+  --color-alert: #FF5A5F;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E0D8;
+  --color-muted: #6B7280;
+  --font-sans: var(--font-jakarta, system-ui, -apple-system, sans-serif);
+  --font-heading: var(--font-poppins, system-ui, sans-serif);
+  --font-mono: var(--font-mono, monospace);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+@keyframes rgPulse {
+  0% { box-shadow: 0 0 0 0 rgba(198, 255, 61, .4); }
+  70% { box-shadow: 0 0 0 14px rgba(198, 255, 61, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(198, 255, 61, 0); }
+}

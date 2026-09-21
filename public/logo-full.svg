@@ -1,0 +1,7 @@
+<svg width="240" height="64" viewBox="0 0 240 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="18" fill="#6C47FF"/>
+  <circle cx="10" cy="32" r="5" fill="#C6FF3D"/>
+  <path d="M20 32 H28" stroke="#C6FF3D" stroke-width="9" stroke-linecap="round"/>
+  <path d="M33 16 L49 32 L33 48" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="78" y="44" font-family="system-ui, -apple-system, sans-serif" font-size="30" font-weight="700" letter-spacing="-1" fill="#0D0D14">RaudaGo</text>
+</svg>
