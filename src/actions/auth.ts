@@ -225,6 +225,34 @@ export async function signupBusinessAction(
   redirect('/negocio/');
 }
 
+export async function aceptarDocumentosLegalesAction(
+  docs: { id: string; tipo: string; version: string }[]
+): Promise<{ error?: string }> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('businessToken')?.value;
+  if (!token) return { error: 'No autenticado' };
+
+  const client = new GraphQLClient(ENDPOINT, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  try {
+    await Promise.all(
+      docs.map((doc) =>
+        client.request(REGISTRAR_ACEPTACION, {
+          tipo: doc.tipo,
+          version: doc.version,
+          document_id: doc.id,
+        })
+      )
+    );
+    return {};
+  } catch (err: unknown) {
+    const gqlErr = err as { response?: { errors?: { message: string }[] } };
+    return { error: gqlErr?.response?.errors?.[0]?.message ?? 'Error al registrar aceptación' };
+  }
+}
+
 export async function logoutBusinessAction(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete('businessToken');

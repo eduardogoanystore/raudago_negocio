@@ -1,5 +1,36 @@
+import { cookies } from 'next/headers';
+import { GraphQLClient } from 'graphql-request';
 import { SidebarNav } from '@/components/dashboard/SidebarNav';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { LegalReacceptModal } from '@/components/legal/LegalReacceptModal';
+
+const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
+
+const LEGAL_PENDIENTES = `
+  query legalDocumentsPendientes {
+    legalDocumentsPendientes {
+      id
+      tipo
+      version
+      contenido
+    }
+  }
+`;
+
+async function getLegalPendientes(token: string) {
+  try {
+    const client = new GraphQLClient(ENDPOINT, {
+      headers: { Authorization: `Bearer ${token}` },
+      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+    });
+    const data = await client.request<{
+      legalDocumentsPendientes: { id: string; tipo: string; version: string; contenido: string }[];
+    }>(LEGAL_PENDIENTES);
+    return data.legalDocumentsPendientes;
+  } catch {
+    return [];
+  }
+}
 
 export default async function DashboardLayout({
   children,
@@ -9,6 +40,10 @@ export default async function DashboardLayout({
   params: Promise<{ negocio_slug: string }>;
 }) {
   const { negocio_slug } = await params;
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get('businessToken')?.value ?? '';
+  const pendientes = token ? await getLegalPendientes(token) : [];
 
   const navItems = [
     { label: 'Inicio',          href: `/negocio/${negocio_slug}/` },
@@ -53,6 +88,8 @@ export default async function DashboardLayout({
       }}>
         {children}
       </main>
+
+      {pendientes.length > 0 && <LegalReacceptModal docs={pendientes} />}
     </div>
   );
 }
