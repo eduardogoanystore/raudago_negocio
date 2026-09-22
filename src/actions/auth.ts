@@ -43,6 +43,24 @@ const SIGNUP_BUSINESS = `
   }
 `;
 
+const LEGAL_PENDIENTES = `
+  query legalDocumentsPendientes {
+    legalDocumentsPendientes {
+      id
+      tipo
+      version
+    }
+  }
+`;
+
+const REGISTRAR_ACEPTACION = `
+  mutation registrarAceptacion($tipo: String!, $version: String!, $document_id: String!) {
+    registrarAceptacion(tipo: $tipo, version: $version, document_id: $document_id) {
+      id
+    }
+  }
+`;
+
 // JWT expira en 24h según el backend (generateJWT hardcodea 24h)
 // El token no incluye expiresAt en la respuesta — calculamos nosotros
 const TOKEN_TTL_MS = 60 * 60 * 24 * 1000; // 24h en ms
@@ -158,6 +176,27 @@ export async function signupBusinessAction(
   }
 
   const { token, user } = data.signupBusiness;
+
+  // Registrar aceptación de documentos legales activos
+  try {
+    const authClient = new GraphQLClient(ENDPOINT, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const legal = await authClient.request<{
+      legalDocumentsPendientes: { id: string; tipo: string; version: string }[];
+    }>(LEGAL_PENDIENTES);
+    await Promise.all(
+      legal.legalDocumentsPendientes.map((doc) =>
+        authClient.request(REGISTRAR_ACEPTACION, {
+          tipo: doc.tipo,
+          version: doc.version,
+          document_id: doc.id,
+        })
+      )
+    );
+  } catch {
+    // Non-fatal — la cuenta ya fue creada, la aceptación puede reregistrarse después
+  }
 
   const cookieStore = await cookies();
   cookieStore.set('businessToken', token, {
