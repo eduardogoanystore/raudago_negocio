@@ -41,22 +41,6 @@ export default async function TerminosPage() {
           &larr; RaudaGo
         </a>
 
-        <div
-          style={{
-            background: '#FEF9C3',
-            border: '1px solid #FDE047',
-            borderRadius: '0.75rem',
-            padding: '1rem 1.25rem',
-            marginBottom: '2rem',
-            fontSize: '0.8rem',
-            color: '#713F12',
-          }}
-        >
-          <strong>Borrador &mdash; no validado legalmente.</strong> Este documento es un borrador de
-          trabajo. Debe ser revisado por un abogado mexicano antes de entrar en vigor con usuarios
-          reales.
-        </div>
-
         <h1
           style={{
             fontSize: '2rem',
@@ -71,7 +55,7 @@ export default async function TerminosPage() {
         <p style={{ fontSize: '0.875rem', color: '#6B6B75', marginBottom: '2.5rem' }}>
           {doc
             ? `Versión ${doc.version} — ${new Date(doc.publicado_en).toLocaleDateString('es-MX')}`
-            : 'Borrador de trabajo'}
+            : ''}
         </p>
 
         {doc ? (
