@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     siteName: 'RaudaGo',
     images: [
       {
-        url: 'https://raudago.com/images/repartidor.png',
-        width: 1456,
-        height: 816,
+        url: 'https://raudago.com/raudagoRedes.png',
+        width: 1080,
+        height: 1080,
         alt: 'Repartidor RaudaGo en moto en Culiacán',
       },
     ],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: 'RaudaGo Repartidores — Todos los pedidos de Culiacán en un solo lugar',
     description:
       'Ves el precio, la distancia y el destino antes de aceptar. Sin regatear, sin grupos de WhatsApp, sin sorpresas.',
-    images: ['https://raudago.com/images/repartidor.png'],
+    images: ['https://raudago.com/raudagoRedes.png'],
   },
 };
 
