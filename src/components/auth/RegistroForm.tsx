@@ -27,6 +27,9 @@ function SubmitButton({ pending }: { pending: boolean }) {
   );
 }
 
+const toTitleCase = (s: string) =>
+  s.trim().replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function RegistroForm({ siteKey }: { siteKey: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -91,6 +94,7 @@ export function RegistroForm({ siteKey }: { siteKey: string }) {
             type="text"
             autoComplete="given-name"
             required
+            onBlur={(e) => { e.target.value = toTitleCase(e.target.value); }}
             style={{
               width: '100%',
               padding: '0.625rem 0.75rem',
@@ -122,6 +126,7 @@ export function RegistroForm({ siteKey }: { siteKey: string }) {
             type="text"
             autoComplete="family-name"
             required
+            onBlur={(e) => { e.target.value = toTitleCase(e.target.value); }}
             style={{
               width: '100%',
               padding: '0.625rem 0.75rem',
