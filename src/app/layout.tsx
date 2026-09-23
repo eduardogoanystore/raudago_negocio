@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     title: 'RaudaGo — Reparto para negocios en Culiacán',
     description:
       'Publica el pedido en 15 segundos y el repartidor más cercano lo toma solo. Sin WhatsApp, sin negociar precios, sin perder el hilo.',
-    url: 'https://raudago-negocio.vercel.app',
+    url: 'https://raudago.com',
     siteName: 'RaudaGo',
     images: [
       {
-        url: 'https://raudago-negocio.vercel.app/raudagoRedes.png',
+        url: 'https://raudago.com/raudagoRedes.png',
         width: 1080,
         height: 1080,
         alt: 'RaudaGo — Reparto para negocios en Culiacán',
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: 'RaudaGo — Reparto para negocios en Culiacán',
     description:
       'Publica el pedido en 15 segundos y el repartidor más cercano lo toma solo. Sin WhatsApp, sin negociar precios, sin perder el hilo.',
-    images: ['https://raudago-negocio.vercel.app/raudagoRedes.png'],
+    images: ['https://raudago.com/raudagoRedes.png'],
   },
 };
 
