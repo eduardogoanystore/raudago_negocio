@@ -1,6 +1,35 @@
-import Image from 'next/image'
+import Image from 'next/image';
+import { publicClient } from '@/graphql/client';
+import { PlanesSection, SubscriptionPlan } from '@/components/landing/PlanesSection';
 
-export default function LandingPage() {
+const SUBSCRIPTION_PLANS_QUERY = `
+  query subscriptionPlans {
+    subscriptionPlans(subscriberType: BUSINESS) {
+      id
+      key
+      name
+      priceWeeklyCents
+      priceMonthlyCents
+      priceAnnualCents
+      promoPriceCents
+      trialDays
+      promoMonths
+      sortOrder
+    }
+  }
+`;
+
+export default async function LandingPage() {
+  let plans: SubscriptionPlan[] = [];
+  try {
+    const data = await publicClient.request<{ subscriptionPlans: SubscriptionPlan[] }>(
+      SUBSCRIPTION_PLANS_QUERY,
+    );
+    plans = data.subscriptionPlans.sort((a, b) => a.sortOrder - b.sortOrder);
+  } catch {
+    // Si falla el fetch, planes vacíos — la sección se renderiza vacía
+  }
+
   return (
     <div style={{ background: '#F3EFE7', minHeight: '100vh' }}>
 
@@ -300,7 +329,7 @@ export default function LandingPage() {
                 letterSpacing: '.01em',
               }}
             >
-              Lanzamiento · 12 semanas a $20
+              3 días gratis · Promo: 3 meses a $20/mes
             </span>
           </div>
 
@@ -803,270 +832,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Planes ── */}
-      <section
-        id="planes"
-        style={{ padding: '96px 24px', maxWidth: 1180, margin: '0 auto', boxSizing: 'border-box' }}
-      >
-        {/* Header */}
-        <div style={{ marginBottom: 56 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#6C47FF',
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-              marginBottom: 14,
-            }}
-          >
-            Planes
-          </div>
-          <h2 id="rg-plans-title">
-            Se paga por semana, no por año
-          </h2>
-          <p style={{ fontSize: 18, color: '#57544f', lineHeight: 1.6, maxWidth: 560 }}>
-            Sin contrato anual, sin mensualidad mínima. Pagas la semana que usas el servicio. Si no despachas, no pagas.
-          </p>
-        </div>
-
-        {/* Plan cards */}
-        <div id="rg-plan-cards">
-
-          {/* Starter */}
-          <div
-            style={{
-              background: '#FFFDFA',
-              border: '1px solid #DED7C9',
-              borderRadius: 20,
-              padding: '36px 32px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 24,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#121214', marginBottom: 4 }}>Starter</div>
-              <div style={{ fontSize: 15, color: '#57544f' }}>Un solo local, sin complicarse.</div>
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                    fontSize: 46,
-                    fontWeight: 700,
-                    color: '#121214',
-                    letterSpacing: '-.03em',
-                  }}
-                >
-                  $20
-                </span>
-                <span style={{ fontSize: 15, color: '#57544f' }}>/semana</span>
-              </div>
-              <div style={{ fontSize: 13, color: '#8E8B93', marginTop: 4 }}>
-                Primeras 12 semanas · luego $400/semana
-              </div>
-            </div>
-
-            <a
-              href="/negocio/registro"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 52,
-                borderRadius: 999,
-                background: '#121214',
-                color: '#C6FF3D',
-                fontSize: 16,
-                fontWeight: 700,
-              }}
-            >
-              Probar 3 días gratis
-            </a>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[
-                '1 sucursal',
-                'Hasta 3 usuarios del equipo',
-                'Pedidos ilimitados',
-                'Pedidos programados',
-                'Seguimiento en vivo y corte semanal',
-              ].map((f) => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      background: 'rgba(108,71,255,.1)',
-                      display: 'grid',
-                      placeItems: 'center',
-                      flex: 'none',
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </div>
-                  <span style={{ fontSize: 15, color: '#57544f' }}>{f}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Pro */}
-          <div
-            style={{
-              background: '#121214',
-              borderRadius: 20,
-              padding: '36px 32px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 24,
-              position: 'relative',
-            }}
-          >
-            {/* Badge */}
-            <div style={{ position: 'absolute', top: -14, left: 32 }}>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  background: '#C6FF3D',
-                  color: '#121214',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  padding: '5px 14px',
-                  borderRadius: 999,
-                }}
-              >
-                Más elegido
-              </span>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#F3EFE7', marginBottom: 4 }}>Pro</div>
-              <div style={{ fontSize: 15, color: '#8E8B93' }}>Varias sucursales y turnos completos.</div>
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                    fontSize: 46,
-                    fontWeight: 700,
-                    color: '#C6FF3D',
-                    letterSpacing: '-.03em',
-                  }}
-                >
-                  $20
-                </span>
-                <span style={{ fontSize: 15, color: '#8E8B93' }}>/semana</span>
-              </div>
-              <div style={{ fontSize: 13, color: '#8E8B93', marginTop: 4 }}>
-                luego $750/semana
-              </div>
-            </div>
-
-            <a
-              href="/negocio/registro"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 52,
-                borderRadius: 999,
-                background: '#6C47FF',
-                color: '#ffffff',
-                fontSize: 16,
-                fontWeight: 700,
-              }}
-            >
-              Probar 3 días gratis
-            </a>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[
-                'Hasta 5 sucursales',
-                'Hasta 10 usuarios',
-                'Todo lo de Starter ilimitado',
-                'Analítica avanzada por sucursal y zona',
-                'Acceso a la API',
-                'IA integrada para direcciones y horas pico',
-              ].map((f) => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      background: 'rgba(198,255,61,.12)',
-                      display: 'grid',
-                      placeItems: 'center',
-                      flex: 'none',
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C6FF3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </div>
-                  <span style={{ fontSize: 15, color: '#F3EFE7' }}>{f}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Post-registro flow card */}
-        <div
-          style={{
-            background: '#FFFDFA',
-            border: '1px solid #DED7C9',
-            borderRadius: 18,
-            padding: '28px 32px',
-          }}
-        >
-          <div id="rg-plan-flow">
-            {[
-              { n: '1', label: '3 días gratis', desc: 'Prueba sin tarjeta ni compromiso.', bg: '#C6FF3D', color: '#121214' },
-              { n: '2', label: '12 semanas a $20', desc: 'Precio de lanzamiento mientras creces.', bg: '#6C47FF', color: '#ffffff' },
-              { n: '3', label: 'Precio normal', desc: 'Starter $400/sem · Pro $750/sem.', bg: '#121214', color: '#C6FF3D' },
-              { n: '4', label: 'Sin pago, cuenta en pausa', desc: 'Dejas de pagar y el servicio se pausa.', bg: 'transparent', color: '#FF5A5F', border: '2px solid #FF5A5F' },
-            ].map((step) => (
-              <div key={step.n} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    background: step.bg,
-                    border: step.border ?? 'none',
-                    display: 'grid',
-                    placeItems: 'center',
-                    flex: 'none',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono), monospace',
-                      fontSize: 15,
-                      fontWeight: 500,
-                      color: step.color,
-                    }}
-                  >
-                    {step.n}
-                  </span>
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#121214' }}>{step.label}</div>
-                <div style={{ fontSize: 14, color: '#57544f', lineHeight: 1.5 }}>{step.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PlanesSection plans={plans} />
 
       {/* ── FAQ ── */}
       <section
