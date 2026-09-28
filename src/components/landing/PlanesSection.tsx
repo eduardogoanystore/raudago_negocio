@@ -263,6 +263,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                   </span>
                 </div>
 
+                <span style={{ fontSize: 13, color: isDark ? '#6B6B75' : '#9B9590' }}>IVA incluido</span>
                 <span style={{ fontSize: 15, color: isDark ? '#8E8B93' : '#57544f' }}>{note}</span>
 
                 {hasPromo && (

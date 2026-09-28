@@ -998,9 +998,12 @@ export default async function LandingPage() {
           </div>
 
           {/* Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
             <a href="/terminos" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Términos
+            </a>
+            <a href="/cancelacion" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
+              Cancelación
             </a>
             <a href="/privacidad" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Privacidad
@@ -1010,6 +1013,9 @@ export default async function LandingPage() {
             </a>
             <a href="/repartidor" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Soy repartidor
+            </a>
+            <a href="mailto:jesus.ed13@gmail.com" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
+              jesus.ed13@gmail.com
             </a>
           </div>
         </div>
