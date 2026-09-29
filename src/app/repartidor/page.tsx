@@ -632,6 +632,7 @@ export default function RepartidorLanding() {
               >
                 {promoPrice}<span style={{ fontSize: 16, fontWeight: 600, color: '#57544f' }}>/semana</span>
               </div>
+              <div style={{ fontSize: 12, color: '#9B9590' }}>IVA incluido</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: '#121214' }}>
                 Durante {promoLength}
               </div>
@@ -666,6 +667,7 @@ export default function RepartidorLanding() {
               >
                 {normalPrice}<span style={{ fontSize: 16, fontWeight: 600, color: '#8E8B93' }}>/semana</span>
               </div>
+              <div style={{ fontSize: 12, color: '#6B6B75' }}>IVA incluido</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: '#DED7C9' }}>
                 Lo mismo que ya pagas hoy
               </div>
@@ -1191,10 +1193,10 @@ export default function RepartidorLanding() {
               WhatsApp 667 227 7437
             </a>
             <a
-              href="mailto:repartidores@raudago.mx"
+              href="mailto:jesus.ed13@gmail.com"
               style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}
             >
-              repartidores@raudago.mx
+              jesus.ed13@gmail.com
             </a>
           </div>
 
@@ -1204,6 +1206,7 @@ export default function RepartidorLanding() {
               Legal
             </div>
             <a href="/terminos" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Términos</a>
+            <a href="/cancelacion" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Cancelación</a>
             <a href="/privacidad" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Privacidad</a>
             <a href="/codigo-conducta" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Código de Conducta</a>
           </div>
