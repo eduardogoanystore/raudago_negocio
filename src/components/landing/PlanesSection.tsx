@@ -45,7 +45,7 @@ interface PlanesSectionProps {
 }
 
 export function PlanesSection({ plans }: PlanesSectionProps) {
-  const [interval, setInterval] = useState<Interval>('MONTH');
+  const [interval, setInterval] = useState<Interval>('WEEK');
   const sorted = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
   const promoPlan = sorted.find((p) => p.promoMonths > 0 && p.promoPriceCents != null);
 
