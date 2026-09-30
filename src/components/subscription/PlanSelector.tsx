@@ -5,9 +5,8 @@ import {
   startSubscriptionCheckout,
   cancelSubscriptionAction,
   reactivateSubscriptionAction,
-  SubscriptionPlan,
-  UserSubscription,
 } from '@/actions/subscription';
+import type { SubscriptionPlan, UserSubscription } from '@/lib/subscription';
 
 interface PlanSelectorProps {
   plans: SubscriptionPlan[];

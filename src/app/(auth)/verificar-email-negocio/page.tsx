@@ -63,7 +63,7 @@ export default async function VerificarEmailNegocioPage({
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
             El link que usaste no contiene un token de verificación.
           </p>
-          <a href="/negocio/login" style={loginLinkStyle}>
+          <a href="/login" style={loginLinkStyle}>
             Ir al login
           </a>
         </div>
@@ -94,7 +94,7 @@ export default async function VerificarEmailNegocioPage({
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
             Si ya verificaste tu cuenta, puedes iniciar sesión normalmente.
           </p>
-          <a href="/negocio/login" style={loginLinkStyle}>
+          <a href="/login" style={loginLinkStyle}>
             Ir al login
           </a>
         </div>
@@ -131,7 +131,7 @@ export default async function VerificarEmailNegocioPage({
         <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>
           Tu cuenta está activa. Ya puedes iniciar sesión.
         </p>
-        <a href="/negocio/login" style={loginLinkStyle}>
+        <a href="/login" style={loginLinkStyle}>
           Ir al login
         </a>
       </div>

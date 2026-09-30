@@ -110,7 +110,7 @@ export default async function EmpleadoDetallePage({
     <div style={{ maxWidth: '640px' }}>
       {/* Back link */}
       <a
-        href={`/negocio/${negocio_slug}/empleados`}
+        href={`/${negocio_slug}/empleados`}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}
       >
         ← Empleados

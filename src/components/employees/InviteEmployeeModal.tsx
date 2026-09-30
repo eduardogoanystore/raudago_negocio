@@ -246,7 +246,7 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
                           padding: '0.5rem',
                           borderRadius: '0.25rem',
                         }}>
-                          {typeof window !== 'undefined' ? window.location.origin : ''}/negocio/aceptar-invitacion?token={state.invitation_token}
+                          {typeof window !== 'undefined' ? window.location.origin : ''}/aceptar-invitacion?token={state.invitation_token}
                         </p>
                       </div>
                     )}

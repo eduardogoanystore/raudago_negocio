@@ -172,7 +172,7 @@ export default async function NegocioDashboard({
           <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Pedidos activos recientes</h2>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <Link
-              href={`/negocio/${negocio_slug}/pedidos`}
+              href={`/${negocio_slug}/pedidos`}
               style={{
                 fontSize: '0.8rem',
                 color: 'var(--color-primary)',
@@ -182,7 +182,7 @@ export default async function NegocioDashboard({
               Ver todos
             </Link>
             <Link
-              href={`/negocio/${negocio_slug}/nuevo-pedido`}
+              href={`/${negocio_slug}/nuevo-pedido`}
               style={{
                 background: 'var(--color-primary)',
                 color: 'white',

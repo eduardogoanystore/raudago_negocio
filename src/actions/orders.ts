@@ -97,7 +97,7 @@ export async function createOrderAction(
     };
   }
 
-  redirect(`/negocio/${negocio_slug}/pedidos`);
+  redirect(`/${negocio_slug}/pedidos`);
 }
 
 const CONFIRM_PRODUCT_PAYMENT = `
@@ -146,6 +146,6 @@ export async function confirmTransferAction(
     return { error: raw || 'No se pudo confirmar el pago. Intenta de nuevo.' };
   }
 
-  revalidatePath(`/negocio/${negocio_slug}/pedidos`);
+  revalidatePath(`/${negocio_slug}/pedidos`);
   return {};
 }

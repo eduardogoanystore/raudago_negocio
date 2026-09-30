@@ -1,8 +1,12 @@
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { GraphQLClient } from 'graphql-request';
 import { SidebarNav } from '@/components/dashboard/SidebarNav';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { LegalReacceptModal } from '@/components/legal/LegalReacceptModal';
+import { cacheSubscriptionStatus } from '@/actions/subscription';
+import { MY_SUBSCRIPTION_QUERY, ACTIVE_STATUSES } from '@/lib/subscription';
+import { getServerClient } from '@/graphql/client';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
@@ -43,16 +47,40 @@ export default async function DashboardLayout({
 
   const cookieStore = await cookies();
   const token = cookieStore.get('businessToken')?.value ?? '';
+
+  // Fast-path: cookie caché (evita GraphQL en cada navegación)
+  const businessId = cookieStore.get('business_id')?.value;
+  const cachedStatus = businessId ? cookieStore.get(`sub_status_${businessId}`)?.value : null;
+  const isCachedActive = cachedStatus != null && ACTIVE_STATUSES.includes(cachedStatus);
+
+  if (!isCachedActive) {
+    // Cache miss → consultar backend
+    const client = await getServerClient();
+    const data = await client.request<{
+      mySubscription: { status: string } | null;
+    }>(MY_SUBSCRIPTION_QUERY);
+    const status = data?.mySubscription?.status ?? null;
+
+    if (!status || !ACTIVE_STATUSES.includes(status)) {
+      redirect('/registro/plan'); // sin suscripción activa → onboarding de plan
+    }
+
+    // Guardar en caché para próximas navegaciones
+    if (businessId && status) {
+      await cacheSubscriptionStatus(businessId, status);
+    }
+  }
+
   const pendientes = token ? await getLegalPendientes(token) : [];
 
   const navItems = [
-    { label: 'Inicio',          href: `/negocio/${negocio_slug}/` },
-    { label: 'Nuevo pedido',    href: `/negocio/${negocio_slug}/nuevo-pedido` },
-    { label: 'Pedidos activos', href: `/negocio/${negocio_slug}/pedidos` },
-    { label: 'Historial',       href: `/negocio/${negocio_slug}/historial` },
-    { label: 'Empleados',       href: `/negocio/${negocio_slug}/empleados` },
-    { label: 'Mi negocio',      href: `/negocio/${negocio_slug}/configuracion` },
-    { label: 'Facturacion',     href: `/negocio/${negocio_slug}/facturacion` },
+    { label: 'Inicio',          href: `/${negocio_slug}/` },
+    { label: 'Nuevo pedido',    href: `/${negocio_slug}/nuevo-pedido` },
+    { label: 'Pedidos activos', href: `/${negocio_slug}/pedidos` },
+    { label: 'Historial',       href: `/${negocio_slug}/historial` },
+    { label: 'Empleados',       href: `/${negocio_slug}/empleados` },
+    { label: 'Mi negocio',      href: `/${negocio_slug}/configuracion` },
+    { label: 'Facturacion',     href: `/${negocio_slug}/facturacion` },
   ];
 
   return (

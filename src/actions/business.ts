@@ -56,6 +56,6 @@ export async function updateProfileAction(
     return { error: raw || 'No se pudo actualizar el perfil. Intenta de nuevo.' };
   }
 
-  revalidatePath(`/negocio/${negocio_slug}/configuracion`);
+  revalidatePath(`/${negocio_slug}/configuracion`);
   return { success: true };
 }

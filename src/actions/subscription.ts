@@ -2,36 +2,10 @@
 
 import { cookies } from 'next/headers';
 import { GraphQLClient } from 'graphql-request';
+import type { SubscriptionPlan, UserSubscription } from '@/lib/subscription';
+import { MY_SUBSCRIPTION_QUERY } from '@/lib/subscription';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description?: string | null;
-  price_weekly_cents: number;
-  price_monthly_cents: number;
-  price_annual_cents: number;
-  promo_months: number;
-  promo_price_cents: number | null;
-  promo_interval?: string | null;
-  features?: string[] | null;
-  is_default?: boolean;
-}
-
-export interface UserSubscription {
-  id: string;
-  status: string;
-  billingCycleType: string;
-  currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: boolean;
-  subscription_plan: {
-    id: string;
-    name: string;
-  };
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -57,22 +31,6 @@ const SUBSCRIPTION_PLANS_QUERY = `
       promoPriceCents
       trialDays
       sortOrder
-    }
-  }
-`;
-
-const MY_SUBSCRIPTION_QUERY = `
-  query mySubscription {
-    mySubscription {
-      id
-      status
-      billingCycleType
-      currentPeriodEnd
-      cancelAtPeriodEnd
-      plan {
-        id
-        name
-      }
     }
   }
 `;
@@ -181,48 +139,20 @@ export async function startSubscriptionCheckout(
   }
 }
 
-export async function cacheSubscriptionStatus(): Promise<void> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('businessToken')?.value ?? '';
-    if (!token) return;
+export async function cacheSubscriptionStatus(businessId: string, status: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(`sub_status_${businessId}`, status, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24,
+  });
+}
 
-    const client = new GraphQLClient(ENDPOINT, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await client.request<{
-      mySubscription: {
-        id: string;
-        status: string;
-        billingCycleType: string;
-        currentPeriodEnd: string | null;
-        cancelAtPeriodEnd: boolean;
-        plan: { id: string; name: string };
-      } | null;
-    }>(MY_SUBSCRIPTION_QUERY);
-
-    const sub = data.mySubscription;
-    const payload = sub
-      ? JSON.stringify({
-          id: sub.id,
-          status: sub.status,
-          billingCycleType: sub.billingCycleType,
-          currentPeriodEnd: sub.currentPeriodEnd,
-          cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
-          subscription_plan: sub.plan,
-        })
-      : '';
-
-    cookieStore.set('subscriptionStatus', payload, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
-  } catch {
-    // Non-fatal
-  }
+export async function clearSubscriptionCache(businessId: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(`sub_status_${businessId}`);
 }
 
 export async function cancelSubscriptionAction(): Promise<{ error?: string }> {

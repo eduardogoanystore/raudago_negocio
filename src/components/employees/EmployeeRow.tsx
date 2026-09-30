@@ -52,7 +52,7 @@ export function EmployeeRow({
 
   return (
     <Link
-      href={`/negocio/${negocio_slug}/empleados/${member.id}`}
+      href={`/${negocio_slug}/empleados/${member.id}`}
       style={{
         display: 'flex',
         alignItems: 'center',

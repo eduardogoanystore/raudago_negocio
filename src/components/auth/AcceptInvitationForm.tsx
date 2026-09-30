@@ -72,7 +72,7 @@ export function AcceptInvitationForm({ token, email, role }: Props) {
             color: '#B91C1C',
           }}>
             {state.error}{' '}
-            <a href="/negocio/login" style={{ color: '#6C47FF', fontWeight: 600 }}>
+            <a href="/login" style={{ color: '#6C47FF', fontWeight: 600 }}>
               Ir al login
             </a>
           </div>

@@ -14,7 +14,7 @@ const MY_BUSINESS_QUERY = `
 
 export default async function NegocioIndexPage() {
   const session = await validateSession();
-  if (!session) redirect('/negocio/login');
+  if (!session) redirect('/login');
 
   try {
     const client = await getServerClient();
@@ -31,11 +31,11 @@ export default async function NegocioIndexPage() {
         path: '/',
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
-      redirect(`/negocio/${business.slug}/`);
+      redirect(`/${business.slug}/`);
     }
   } catch {
     // Si falla la query, mandamos a login
   }
 
-  redirect('/negocio/login');
+  redirect('/login');
 }

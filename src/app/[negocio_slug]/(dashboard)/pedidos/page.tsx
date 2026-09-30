@@ -114,7 +114,7 @@ export default async function PedidosActivosPage({
         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-muted)' }}>
           <p style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Sin pedidos activos</p>
           <a
-            href={`/negocio/${negocio_slug}/nuevo-pedido`}
+            href={`/${negocio_slug}/nuevo-pedido`}
             style={{
               display: 'inline-block',
               background: 'var(--color-primary)',

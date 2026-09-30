@@ -278,7 +278,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
               {/* CTA */}
               <a
-                href="/negocio/registro"
+                href="/registro"
                 style={{
                   height: 54,
                   borderRadius: 999,

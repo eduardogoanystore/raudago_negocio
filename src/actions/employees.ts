@@ -61,7 +61,7 @@ export async function inviteMemberAction(
     const data = await client.request<{
       inviteBusinessMember: { id: string; invitation_token?: string };
     }>(INVITE_MEMBER, { email, role });
-    revalidatePath(`/negocio/${negocio_slug}/empleados`);
+    revalidatePath(`/${negocio_slug}/empleados`);
     return { success: true, invitation_token: data.inviteBusinessMember.invitation_token };
   } catch (err: any) {
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al invitar' };
@@ -72,7 +72,7 @@ export async function deactivateMemberAction(memberId: string, negocio_slug: str
   try {
     const client = await getServerClient();
     await client.request(DEACTIVATE_MEMBER, { member_id: memberId });
-    revalidatePath(`/negocio/${negocio_slug}/empleados`);
+    revalidatePath(`/${negocio_slug}/empleados`);
   } catch (err: any) {
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al desactivar' };
   }
@@ -82,7 +82,7 @@ export async function removeMemberAction(memberId: string, negocio_slug: string)
   try {
     const client = await getServerClient();
     await client.request(REMOVE_MEMBER, { member_id: memberId });
-    revalidatePath(`/negocio/${negocio_slug}/empleados`);
+    revalidatePath(`/${negocio_slug}/empleados`);
   } catch (err: any) {
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al eliminar' };
   }
@@ -132,5 +132,5 @@ export async function acceptInvitationAction(
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al activar cuenta' };
   }
 
-  redirect('/negocio/');
+  redirect('/');
 }

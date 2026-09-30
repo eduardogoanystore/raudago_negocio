@@ -107,7 +107,7 @@ export function NIPLoginForm() {
       </div>
 
       <a
-        href="/negocio/login"
+        href="/login"
         style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}
       >
         Usar contrasena en su lugar

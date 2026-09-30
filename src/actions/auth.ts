@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { GraphQLClient } from 'graphql-request';
 import { verifyCaptcha } from '@/utils/captcha';
+import { cacheSubscriptionStatus } from '@/actions/subscription';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
@@ -88,7 +89,7 @@ export async function loginBusinessAction(
 
   const client = new GraphQLClient(ENDPOINT);
 
-  let data: { loginBusiness: { token: string; user: Record<string, unknown> & { id?: string } } };
+  let data: { loginBusiness: { token: string; user: Record<string, unknown> & { id?: string; business_id?: string; business_slug?: string; subscription_status?: string } } };
   try {
     data = await client.request(LOGIN_BUSINESS, { email, password });
   } catch (err: unknown) {
@@ -119,8 +120,26 @@ export async function loginBusinessAction(
     });
   }
 
-  // loginBusiness no devuelve slug → redirigir al dispatcher /negocio/
-  redirect('/negocio/');
+  // Guardar business_id para que getServerClient() lo envíe en x-business-id
+  if (user?.business_id) {
+    cookieStore.set('business_id', user.business_id as string, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(Date.now() + TOKEN_TTL_MS),
+      path: '/',
+    });
+  }
+
+  // Cachear estado de suscripción para evitar queries en cada navegación
+  if (user?.business_id && user?.subscription_status) {
+    await cacheSubscriptionStatus(user.business_id as string, user.subscription_status as string);
+  }
+
+  if (user?.business_slug) {
+    redirect(`/${user.business_slug}/`);
+  }
+  redirect('/');
 }
 
 export async function signupBusinessAction(
@@ -219,10 +238,10 @@ export async function signupBusinessAction(
   }
 
   if (user?.business_slug) {
-    redirect(`/negocio/${user.business_slug}/`);
+    redirect(`/${user.business_slug}/`);
   }
 
-  redirect('/negocio/');
+  redirect('/');
 }
 
 export async function aceptarDocumentosLegalesAction(
@@ -257,5 +276,11 @@ export async function logoutBusinessAction(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete('businessToken');
   cookieStore.delete('business_id');
-  redirect('/negocio/login');
+  const allCookies = cookieStore.getAll();
+  for (const cookie of allCookies) {
+    if (cookie.name.startsWith('sub_status_')) {
+      cookieStore.delete(cookie.name);
+    }
+  }
+  redirect('/login');
 }

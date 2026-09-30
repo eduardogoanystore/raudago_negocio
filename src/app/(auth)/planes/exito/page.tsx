@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { getMySubscription } from '@/actions/subscription';
 import { SetSubscriptionCookie } from '@/components/subscription/SetSubscriptionCookie';
 import { SubscriptionPolling } from '@/components/subscription/SubscriptionPolling';
@@ -13,6 +14,9 @@ export default async function ExitoPage({
   searchParams: Promise<SearchParams>;
 }) {
   await searchParams; // session_id available if needed for logging
+
+  const cookieStore = await cookies();
+  const businessId = cookieStore.get('business_id')?.value ?? '';
 
   const subscription = await getMySubscription();
   const isActive = subscription && ['ACTIVE', 'TRIALING'].includes(subscription.status);
@@ -48,7 +52,7 @@ export default async function ExitoPage({
         {isActive ? (
           /* Suscripcion ya activa — mostrar exito inmediatamente */
           <div style={{ textAlign: 'center' }}>
-            <SetSubscriptionCookie />
+            <SetSubscriptionCookie businessId={businessId} status={subscription.status} />
             <div
               style={{
                 width: '4rem',
@@ -89,7 +93,7 @@ export default async function ExitoPage({
             )}
             <div style={{ marginTop: '2rem' }}>
               <Link
-                href="/negocio/"
+                href="/"
                 style={{
                   display: 'inline-block',
                   padding: '0.875rem 2rem',
@@ -106,7 +110,7 @@ export default async function ExitoPage({
           </div>
         ) : (
           /* Suscripcion pendiente — delegar polling al cliente */
-          <SubscriptionPolling />
+          <SubscriptionPolling businessId={businessId} />
         )}
       </div>
     </main>

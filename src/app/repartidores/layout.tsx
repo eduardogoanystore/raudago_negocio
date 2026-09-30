@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: 'RaudaGo Repartidores — Todos los pedidos de Culiacán en un solo lugar',
     description:
       'Ves el precio, la distancia y el destino antes de aceptar. Sin regatear, sin grupos de WhatsApp, sin sorpresas.',
-    url: 'https://raudago.com/repartidor',
+    url: 'https://raudago.com/repartidores',
     siteName: 'RaudaGo',
     images: [
       {

@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getMySubscription, UserSubscription } from '@/actions/subscription';
+import { getMySubscription } from '@/actions/subscription';
+import type { UserSubscription } from '@/lib/subscription';
 import { SetSubscriptionCookie } from './SetSubscriptionCookie';
 import Link from 'next/link';
 
 const MAX_ATTEMPTS = 5; // 5 x 2s = 10s total
 const POLL_INTERVAL_MS = 2000;
 
-function SuccessView({ subscription }: { subscription: UserSubscription }) {
+function SuccessView({ subscription, businessId }: { subscription: UserSubscription; businessId: string }) {
   return (
     <div style={{ textAlign: 'center' }}>
-      <SetSubscriptionCookie />
+      <SetSubscriptionCookie businessId={businessId} status={subscription.status} />
       <div
         style={{
           width: '4rem',
@@ -52,7 +53,7 @@ function SuccessView({ subscription }: { subscription: UserSubscription }) {
       )}
       <div style={{ marginTop: '2rem' }}>
         <Link
-          href="/negocio/"
+          href="/"
           style={{
             display: 'inline-block',
             padding: '0.875rem 2rem',
@@ -70,7 +71,7 @@ function SuccessView({ subscription }: { subscription: UserSubscription }) {
   );
 }
 
-export function SubscriptionPolling() {
+export function SubscriptionPolling({ businessId }: { businessId: string }) {
   const [activeSub, setActiveSub] = useState<UserSubscription | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [polling, setPolling] = useState(true);
@@ -99,7 +100,7 @@ export function SubscriptionPolling() {
   }, [attempts, polling]);
 
   if (activeSub) {
-    return <SuccessView subscription={activeSub} />;
+    return <SuccessView subscription={activeSub} businessId={businessId} />;
   }
 
   if (!polling) {
@@ -121,7 +122,7 @@ export function SubscriptionPolling() {
           Tu pago esta siendo procesado. Puede tardar unos minutos mas. Revisa tu correo y vuelve pronto.
         </p>
         <Link
-          href="/negocio/"
+          href="/"
           style={{
             display: 'inline-block',
             padding: '0.75rem 1.5rem',

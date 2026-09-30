@@ -188,10 +188,10 @@ export default async function LandingPage() {
           #rg-nav-inner {
             padding: 12px 16px;
           }
-          #rg-nav-links a:not([href="/negocio/registro"]) {
+          #rg-nav-links a:not([href="/registro"]) {
             display: none;
           }
-          #rg-nav-links a[href="/negocio/registro"] {
+          #rg-nav-links a[href="/registro"] {
             height: 38px;
             padding: 0 16px;
             font-size: 13px;
@@ -290,7 +290,7 @@ export default async function LandingPage() {
               Planes
             </a>
             <a
-              href="/negocio/registro"
+              href="/registro"
               style={{
                 height: 44,
                 padding: '0 20px',
@@ -344,7 +344,7 @@ export default async function LandingPage() {
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <a
-              href="/negocio/registro"
+              href="/registro"
               style={{
                 height: 58,
                 padding: '0 32px',
@@ -918,7 +918,7 @@ export default async function LandingPage() {
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <a
-              href="/negocio/registro"
+              href="/registro"
               style={{
                 height: 58,
                 padding: '0 36px',
@@ -1011,7 +1011,7 @@ export default async function LandingPage() {
             <a href="/codigo-conducta" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Conducta
             </a>
-            <a href="/repartidor" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
+            <a href="/repartidores" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Soy repartidor
             </a>
             <a href="mailto:jesus.ed13@gmail.com" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>

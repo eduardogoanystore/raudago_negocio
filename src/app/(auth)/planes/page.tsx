@@ -34,7 +34,7 @@ export default async function PlanesPage({
         {/* Header */}
         <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
           <a
-            href="/negocio/"
+            href="/"
             style={{
               display: 'inline-block',
               fontSize: '1.5rem',

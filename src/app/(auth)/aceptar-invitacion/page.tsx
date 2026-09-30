@@ -46,7 +46,7 @@ export default async function AceptarInvitacionPage({
             Token de invitacion no encontrado.
           </p>
           <a
-            href="/negocio/login"
+            href="/login"
             style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}
           >
             Ir al login
@@ -91,7 +91,7 @@ export default async function AceptarInvitacionPage({
             La invitacion no es valida o ya expiro.
           </p>
           <a
-            href="/negocio/login"
+            href="/login"
             style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}
           >
             Ir al login
