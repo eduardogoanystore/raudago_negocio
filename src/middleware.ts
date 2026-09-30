@@ -46,12 +46,29 @@ function isTokenExpired(token: string): boolean {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get('host') ?? '';
+  const isPortalDomain = hostname.startsWith('negocio.') || hostname.startsWith('negocios.');
   const token = request.cookies.get('businessToken')?.value;
   const hasValidToken = token && !isTokenExpired(token);
 
   const isAuthOnly = AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p));
   const isOpen = OPEN_PATHS.some((p) => pathname.startsWith(p));
-  const isPublic = isAuthOnly || isOpen;
+
+  // En dominio del portal (negocio.raudago.com):
+  // / sin token → redirect a /login
+  // / con token → dejar pasar (dispatcher buscará el slug)
+  if (isPortalDomain && pathname === '/') {
+    if (!hasValidToken) {
+      const accountId = request.cookies.get('business_account_id')?.value;
+      if (accountId) {
+        const nipUrl = new URL('/login-nip', request.url);
+        nipUrl.searchParams.set('id', accountId);
+        return NextResponse.redirect(nipUrl);
+      }
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.next();
+  }
 
   // Rutas abiertas: pasar siempre
   if (isOpen) return NextResponse.next();
