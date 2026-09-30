@@ -93,6 +93,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|images/|favicon.png|favicon.ico|icon.svg|logo-full.svg|raudagoRedes.png).*)',
+    '/((?!_next/static|_next/image|images/|api|favicon.ico|.*\\.svg|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.webp).*)',
   ],
 };
