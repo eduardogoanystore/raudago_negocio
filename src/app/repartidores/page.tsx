@@ -221,7 +221,7 @@ export default function RepartidorLanding() {
                 src="/images/repartidor.png"
                 alt="Repartidor RaudaGo en moto"
                 fill
-                style={{ objectFit: 'cover', objectPosition: 'center center' }}
+                style={{ objectFit: 'fill' }}
                 priority
               />
             </div>
