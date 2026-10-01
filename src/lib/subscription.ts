@@ -1,5 +1,6 @@
 export interface SubscriptionPlan {
   id: string;
+  key: string;
   name: string;
   description?: string | null;
   price_weekly_cents: number;

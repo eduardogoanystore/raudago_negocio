@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { registerNegocioStep1Action } from '@/actions/onboarding';
 
@@ -61,6 +62,7 @@ function Field({
 }
 
 export default function RegistroW1Page() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,15 +79,15 @@ export default function RegistroW1Page() {
     const confirm = formData.get('confirm_password') as string;
 
     if (!email.includes('@')) {
-      setError('Ingresa un correo electrónico válido');
+      setError('Ingresa un correo válido, por ejemplo: tu@correo.com');
       return;
     }
     if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+      setError('La contraseña debe tener mínimo 8 caracteres. Agrega más letras o números.');
       return;
     }
     if (password !== confirm) {
-      setError('Las contraseñas no coinciden');
+      setError('Las contraseñas no coinciden. Verifica que ambas sean iguales.');
       return;
     }
 
@@ -94,6 +96,8 @@ export default function RegistroW1Page() {
       const result = await registerNegocioStep1Action(formData);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.redirectTo) {
+        router.push(result.redirectTo);
       }
     });
   }

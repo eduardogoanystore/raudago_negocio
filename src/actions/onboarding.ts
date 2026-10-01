@@ -71,13 +71,29 @@ const CREATE_CHECKOUT = `
 
 export interface OnboardingActionState {
   error?: string;
+  redirectTo?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function parseGqlError(err: unknown, fallback: string): string {
   const gqlErr = err as { response?: { errors?: { message: string }[] } };
-  return gqlErr?.response?.errors?.[0]?.message ?? fallback;
+  const raw = gqlErr?.response?.errors?.[0]?.message ?? '';
+
+  if (!raw) return fallback;
+
+  const msg = raw.toLowerCase();
+  if (msg.includes('email') && (msg.includes('registrado') || msg.includes('existe') || msg.includes('taken') || msg.includes('already'))) {
+    return 'Este correo ya tiene una cuenta. Intenta con otro o inicia sesión.';
+  }
+  if (msg.includes('contraseña') || msg.includes('password')) {
+    return 'La contraseña debe tener al menos 8 caracteres.';
+  }
+  if (msg.includes('teléfono') || msg.includes('phone')) {
+    return 'El número de teléfono no es válido.';
+  }
+
+  return raw;
 }
 
 // ─── W1 — Datos del negocio ───────────────────────────────────────────────────
@@ -155,7 +171,15 @@ export async function registerNegocioStep1Action(
     });
   }
 
-  redirect('/registro/sucursal');
+  cookieStore.set('onboarding_step', 'sucursal', {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    expires: new Date(Date.now() + SESSION_TTL_MS),
+    path: '/',
+  });
+
+  return { redirectTo: '/registro/sucursal' };
 }
 
 // ─── W2 — Sucursal ────────────────────────────────────────────────────────────
@@ -163,12 +187,15 @@ export async function registerNegocioStep1Action(
 export async function registerNegocioStep2Action(
   formData: FormData
 ): Promise<OnboardingActionState> {
-  const branch_name = formData.get('branch_name') as string;
   const address = formData.get('address') as string;
+  const referencia = (formData.get('referencia') as string) || undefined;
   const phone = (formData.get('phone') as string) || undefined;
+  const lat = (formData.get('lat') as string) || undefined;
+  const lng = (formData.get('lng') as string) || undefined;
+  const city = (formData.get('city') as string) || 'Culiacán';
 
-  if (!branch_name || !address) {
-    return { error: 'Nombre de sucursal y dirección son requeridos' };
+  if (!address) {
+    return { error: 'La dirección de recolección es requerida.' };
   }
 
   const cookieStore = await cookies();
@@ -180,7 +207,6 @@ export async function registerNegocioStep2Action(
   }
 
   // TODO: Descomentar cuando el backend exponga createBranch.
-  // Si la mutation no existe aún se guarda la cookie y se redirige igual.
   /*
   const client = new GraphQLClient(ENDPOINT, {
     headers: { Authorization: `Bearer ${token}` },
@@ -190,10 +216,13 @@ export async function registerNegocioStep2Action(
   try {
     const data = await client.request<{ createBranch: { id: string } }>(CREATE_BRANCH, {
       business_id: business_id ?? '',
-      name: branch_name,
+      name: address.split(',')[0] ?? address, // usar primera parte de la dirección como nombre
       address,
-      city: 'Culiacán, Sinaloa',
+      city,
       phone,
+      referencia,
+      lat: lat ? parseFloat(lat) : undefined,
+      lng: lng ? parseFloat(lng) : undefined,
     });
     branchId = data.createBranch.id;
   } catch (err: unknown) {
@@ -211,7 +240,15 @@ export async function registerNegocioStep2Action(
   }
   */
 
-  redirect('/registro/plan');
+  cookieStore.set('onboarding_step', 'plan', {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    expires: new Date(Date.now() + SESSION_TTL_MS),
+    path: '/',
+  });
+
+  return { redirectTo: '/registro/plan' };
 }
 
 // ─── W3 — Checkout ────────────────────────────────────────────────────────────
@@ -240,6 +277,9 @@ export async function createNegocioCheckoutAction(
   } catch (err: unknown) {
     return { error: parseGqlError(err, 'Error al iniciar el pago. Intenta de nuevo.') };
   }
+
+  // Onboarding completado — limpiar cookie de paso
+  cookieStore.delete('onboarding_step');
 
   redirect(checkoutUrl);
 }

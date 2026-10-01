@@ -5,8 +5,12 @@ export const metadata = {
   title: 'Elige tu plan — RaudaGo',
 };
 
-export default async function RegistroPlanPage() {
-  const plans = await getPlans('BUSINESS');
+export default async function RegistroPlanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string; interval?: string }>;
+}) {
+  const [plans, params] = await Promise.all([getPlans('BUSINESS'), searchParams]);
 
   return (
     <main
@@ -20,13 +24,12 @@ export default async function RegistroPlanPage() {
         boxSizing: 'border-box',
       }}
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 760,
-        }}
-      >
-        <OnboardingPlanSelector plans={plans} />
+      <div style={{ width: '100%', maxWidth: 760 }}>
+        <OnboardingPlanSelector
+          plans={plans}
+          initialPlanKey={params.plan}
+          initialInterval={params.interval as 'WEEK' | 'MONTH' | 'YEAR' | undefined}
+        />
       </div>
     </main>
   );

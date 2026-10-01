@@ -21,11 +21,16 @@ function perLabel(interval: Interval): string {
 
 interface OnboardingPlanSelectorProps {
   plans: SubscriptionPlan[];
+  initialPlanKey?: string;
+  initialInterval?: Interval;
 }
 
-export function OnboardingPlanSelector({ plans }: OnboardingPlanSelectorProps) {
-  const [interval, setInterval] = useState<Interval>('MONTH');
+export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval }: OnboardingPlanSelectorProps) {
+  const [interval, setInterval] = useState<Interval>(initialInterval ?? 'MONTH');
   const sorted = [...plans].sort((a, b) => (a.promo_months ?? 0) - (b.promo_months ?? 0));
+  const preSelectedId = initialPlanKey
+    ? sorted.find((p) => p.key === initialPlanKey)?.id
+    : undefined;
 
   return (
     <div>
@@ -117,6 +122,7 @@ export function OnboardingPlanSelector({ plans }: OnboardingPlanSelectorProps) {
         >
           {sorted.map((plan, idx) => {
             const isDark = idx === 1;
+            const isPreSelected = preSelectedId === plan.id;
             const price = planPrice(plan, interval);
 
             return (
@@ -124,7 +130,9 @@ export function OnboardingPlanSelector({ plans }: OnboardingPlanSelectorProps) {
                 key={plan.id}
                 style={{
                   background: isDark ? '#121214' : '#F3EFE7',
-                  border: isDark ? 'none' : '1px solid #DED7C9',
+                  border: isPreSelected && !isDark
+                    ? '2px solid #6C47FF'
+                    : isDark ? 'none' : '1px solid #DED7C9',
                   borderRadius: 18,
                   padding: 24,
                   display: 'flex',
@@ -208,7 +216,11 @@ export function OnboardingPlanSelector({ plans }: OnboardingPlanSelectorProps) {
                 )}
 
                 {/* CTA */}
-                <NegocioPlanButton planId={plan.id} interval={interval} />
+                <NegocioPlanButton
+                  planId={plan.id}
+                  interval={interval}
+                  label={isPreSelected ? 'Continuar con este plan →' : 'Seleccionar plan'}
+                />
               </div>
             );
           })}

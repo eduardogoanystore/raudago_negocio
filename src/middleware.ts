@@ -20,12 +20,15 @@ const RESERVED_SLUGS = new Set([
 ]);
 
 // Rutas solo para no autenticados: si hay sesión válida se redirige al dispatcher
+// Nota: /registro/sucursal y /registro/plan son continuación del onboarding (accesibles con token)
 const AUTH_ONLY_PATHS = [
   '/login',
-  '/registro',
   '/login-nip',
   '/aceptar-invitacion',
 ];
+
+// Exactas: solo /registro exacto bloquea si ya hay sesión
+const AUTH_ONLY_EXACT = ['/registro'];
 
 // Rutas públicas para cualquiera (con o sin sesión): no se redirige
 const OPEN_PATHS = [
@@ -51,7 +54,9 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('businessToken')?.value;
   const hasValidToken = token && !isTokenExpired(token);
 
-  const isAuthOnly = AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p));
+  const isAuthOnly =
+    AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p)) ||
+    AUTH_ONLY_EXACT.some((p) => pathname === p);
   const isOpen = OPEN_PATHS.some((p) => pathname.startsWith(p));
 
   // En dominio del portal (negocio.raudago.com):
@@ -73,7 +78,25 @@ export function middleware(request: NextRequest) {
   // Rutas abiertas: pasar siempre
   if (isOpen) return NextResponse.next();
 
-  // Autenticado visitando login/registro → redirigir al dispatcher
+  // Autenticado visitando /registro exacto → continuar donde se quedó en el onboarding
+  if (hasValidToken && AUTH_ONLY_EXACT.some((p) => pathname === p)) {
+    const step = request.cookies.get('onboarding_step')?.value;
+    if (step === 'sucursal') {
+      const dest = new URL('/registro/sucursal', request.url);
+      // Preservar plan/interval si vienen del landing
+      request.nextUrl.searchParams.forEach((v, k) => dest.searchParams.set(k, v));
+      return NextResponse.redirect(dest);
+    }
+    if (step === 'plan') {
+      const dest = new URL('/registro/plan', request.url);
+      request.nextUrl.searchParams.forEach((v, k) => dest.searchParams.set(k, v));
+      return NextResponse.redirect(dest);
+    }
+    // Sin step pendiente → ya completó onboarding, ir al portal
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // Autenticado visitando login → redirigir al dispatcher
   if (hasValidToken && isAuthOnly) {
     return NextResponse.redirect(new URL('/', request.url));
   }

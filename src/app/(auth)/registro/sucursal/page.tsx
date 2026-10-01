@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
+import { PlacesAutocomplete, type PlaceResult } from '@/components/onboarding/PlacesAutocomplete';
 import { registerNegocioStep2Action } from '@/actions/onboarding';
 
 const INPUT_STYLE: React.CSSProperties = {
@@ -27,18 +29,35 @@ const LABEL_STYLE: React.CSSProperties = {
 };
 
 export default function RegistroSucursalPage() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [place, setPlace] = useState<PlaceResult | null>(null);
+
+  const handlePlaceSelect = useCallback((p: PlaceResult) => setPlace(p), []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+
+    if (!place?.address) {
+      setError('Selecciona una dirección del listado de sugerencias.');
+      return;
+    }
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    formData.set('address', place.address);
+    formData.set('lat', place.lat?.toString() ?? '');
+    formData.set('lng', place.lng?.toString() ?? '');
+    formData.set('city', place.city);
 
     setError(null);
     startTransition(async () => {
       const result = await registerNegocioStep2Action(formData);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.redirectTo) {
+        router.push(result.redirectTo);
       }
     });
   }
@@ -67,68 +86,41 @@ export default function RegistroSucursalPage() {
       >
         <OnboardingHeader
           step={2}
-          title="Tu primera sucursal"
-          subtitle="Desde aquí recibirán y despacharán los pedidos."
+          title="¿Desde dónde salen tus pedidos?"
+          subtitle="Con esta dirección calculamos los km y la tarifa de cada pedido."
         />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* Nombre de sucursal */}
+
+          {/* Dirección con Google Places */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="branch_name" style={LABEL_STYLE}>
-              Nombre de la sucursal
-            </label>
-            <input
-              id="branch_name"
-              name="branch_name"
-              type="text"
-              placeholder="Ej. Sucursal Centro"
-              required
-              style={INPUT_STYLE}
+            <label style={LABEL_STYLE}>Dirección de recolección</label>
+            <PlacesAutocomplete
+              onSelect={handlePlaceSelect}
+              inputStyle={INPUT_STYLE}
             />
           </div>
 
-          {/* Dirección */}
+          {/* Referencia */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="address" style={LABEL_STYLE}>
-              Dirección completa
+            <label htmlFor="referencia" style={LABEL_STYLE}>
+              Referencia para el repartidor{' '}
+              <span style={{ fontWeight: 400, color: '#8E8B93' }}>(opcional)</span>
             </label>
             <input
-              id="address"
-              name="address"
+              id="referencia"
+              name="referencia"
               type="text"
-              placeholder="Blvd. Culiacán 123, Col. Centro"
-              required
+              placeholder="Ej. Entrada lateral, junto al estacionamiento"
               style={INPUT_STYLE}
             />
-          </div>
-
-          {/* Ciudad — read-only */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="city" style={LABEL_STYLE}>
-              Ciudad
-            </label>
-            <input
-              id="city"
-              name="city"
-              type="text"
-              value="Culiacán, Sinaloa"
-              readOnly
-              style={{
-                ...INPUT_STYLE,
-                background: '#F3EFE7',
-                color: '#57544f',
-                cursor: 'default',
-              }}
-            />
-            <span style={{ fontSize: 12, color: '#8E8B93', marginTop: 6 }}>
-              Por ahora solo operamos en Culiacán.
-            </span>
           </div>
 
           {/* Teléfono de sucursal */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label htmlFor="phone" style={LABEL_STYLE}>
-              Teléfono de la sucursal (opcional)
+              Teléfono de la sucursal{' '}
+              <span style={{ fontWeight: 400, color: '#8E8B93' }}>(opcional)</span>
             </label>
             <input
               id="phone"
@@ -172,8 +164,12 @@ export default function RegistroSucursalPage() {
               transition: 'background 0.15s',
             }}
           >
-            {isPending ? 'Guardando...' : 'Continuar \u2192'}
+            {isPending ? 'Guardando...' : 'Continuar →'}
           </button>
+
+          <p style={{ fontSize: 13, color: '#8E8B93', margin: 0, textAlign: 'center' }}>
+            Agrega más sucursales después desde el portal (plan Pro).
+          </p>
         </form>
       </div>
     </main>

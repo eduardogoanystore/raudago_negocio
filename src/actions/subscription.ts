@@ -23,6 +23,7 @@ const SUBSCRIPTION_PLANS_QUERY = `
   query subscriptionPlans($subscriberType: SubscriberType!) {
     subscriptionPlans(subscriberType: $subscriberType) {
       id
+      key
       name
       priceWeeklyCents
       priceMonthlyCents
@@ -67,6 +68,7 @@ export async function getPlans(
     const data = await client.request<{
       subscriptionPlans: Array<{
         id: string;
+        key: string;
         name: string;
         priceWeeklyCents: number;
         priceMonthlyCents: number;
@@ -80,6 +82,7 @@ export async function getPlans(
 
     return data.subscriptionPlans.map((p) => ({
       id: p.id,
+      key: p.key,
       name: p.name,
       price_weekly_cents: p.priceWeeklyCents,
       price_monthly_cents: p.priceMonthlyCents,

@@ -388,6 +388,8 @@ export default async function LandingPage() {
         {/* Right — App mockup */}
         <div
           style={{
+            minWidth: 0,
+            overflow: 'hidden',
             background: '#121214',
             borderRadius: 24,
             padding: '28px 24px',
@@ -662,6 +664,7 @@ export default async function LandingPage() {
             <div
               key={step.num}
               style={{
+                minWidth: 0,
                 background: '#FFFDFA',
                 border: '1px solid #DED7C9',
                 borderRadius: 18,

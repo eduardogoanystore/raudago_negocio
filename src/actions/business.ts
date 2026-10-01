@@ -59,3 +59,44 @@ export async function updateProfileAction(
   revalidatePath(`/${negocio_slug}/configuracion`);
   return { success: true };
 }
+
+const UPDATE_SLUG_MUTATION = `
+  mutation updateBusinessSlug($slug: String!) {
+    updateBusinessSlug(slug: $slug) {
+      id
+      slug
+    }
+  }
+`;
+
+export interface SlugActionState {
+  error?: string;
+  slug?: string;
+}
+
+export async function updateBusinessSlugAction(
+  currentSlug: string,
+  formData: FormData
+): Promise<SlugActionState> {
+  const slug = (formData.get('slug') as string)?.trim().toLowerCase();
+
+  if (!slug) return { error: 'El slug no puede estar vacío.' };
+  if (!/^[a-z0-9][a-z0-9-]{1,58}[a-z0-9]$/.test(slug)) {
+    return { error: 'Solo letras minúsculas, números y guiones. Entre 3 y 60 caracteres.' };
+  }
+
+  try {
+    const client = await getServerClient();
+    const data = await client.request<{ updateBusinessSlug: { id: string; slug: string } }>(
+      UPDATE_SLUG_MUTATION,
+      { slug }
+    );
+    const newSlug = data.updateBusinessSlug.slug;
+    revalidatePath(`/${currentSlug}/configuracion`);
+    return { slug: newSlug };
+  } catch (err: unknown) {
+    const gqlErr = err as { response?: { errors?: { message: string }[] } };
+    const msg = gqlErr?.response?.errors?.[0]?.message ?? 'Error al actualizar el slug.';
+    return { error: msg };
+  }
+}

@@ -1,11 +1,13 @@
 import { getServerClient } from '@/graphql/client';
 import NegocioConfigForm from '@/components/business/NegocioConfigForm';
+import SlugEditor from '@/components/business/SlugEditor';
 
 const MY_BUSINESS_FULL_QUERY = `
   query MyBusinessFull {
     myBusiness {
       id
       name
+      slug
       phone
       email
       address
@@ -26,6 +28,7 @@ const MY_BUSINESS_FULL_QUERY = `
 type BusinessData = {
   id: string;
   name: string;
+  slug: string;
   phone: string | null;
   email: string | null;
   address: string | null;
@@ -179,6 +182,23 @@ export default async function ConfiguracionPage({
           }}
           account={accountData}
         />
+      </div>
+
+      {/* Card: URL del portal */}
+      <div style={{
+        background: 'var(--color-surface)',
+        borderRadius: '0.75rem',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      }}>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+          URL del portal
+        </h2>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '1.25rem' }}>
+          Esta es la dirección web de tu portal. Si la cambias, la URL anterior dejará de funcionar.
+        </p>
+        <SlugEditor currentSlug={negocio_slug} />
       </div>
 
       {/* Card: ubicación (readonly) */}

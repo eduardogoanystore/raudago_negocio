@@ -278,7 +278,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
               {/* CTA */}
               <a
-                href="/registro"
+                href={`/registro?plan=${plan.key}&interval=${interval}`}
                 style={{
                   height: 54,
                   borderRadius: 999,
@@ -420,7 +420,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                 >
                   {step.n}
                 </span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#121214' }}>{step.label}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#121214', overflowWrap: 'break-word', minWidth: 0 }}>{step.label}</span>
               </div>
               <span style={{ fontSize: 15, lineHeight: '22px', color: '#57544f' }}>{step.desc}</span>
             </div>
