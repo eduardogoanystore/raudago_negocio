@@ -49,7 +49,8 @@ export function RegistroForm({ siteKey }: { siteKey: string }) {
       const formData = new FormData(e.currentTarget);
       const result = await signupBusinessAction(token, formData);
       if (result?.error) setError(result.error);
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message === 'NEXT_REDIRECT') return;
       setError('Error al verificar. Intenta de nuevo.');
     } finally {
       setPending(false);

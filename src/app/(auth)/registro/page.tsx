@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { registerNegocioStep1Action } from '@/actions/onboarding';
 
@@ -61,8 +61,32 @@ function Field({
   );
 }
 
+function capitalizeWords(value: string): string {
+  return value.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function CapitalizedInput({ name, placeholder }: { name: string; placeholder?: string }) {
+  const [value, setValue] = useState('');
+  return (
+    <input
+      id={name}
+      name={name}
+      type="text"
+      placeholder={placeholder}
+      required
+      autoCapitalize="words"
+      value={value}
+      onChange={(e) => setValue(capitalizeWords(e.target.value))}
+      style={INPUT_STYLE}
+    />
+  );
+}
+
 export default function RegistroW1Page() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planKey = searchParams.get('plan') ?? '';
+  const interval = searchParams.get('interval') ?? '';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,10 +151,12 @@ export default function RegistroW1Page() {
         <OnboardingHeader
           step={1}
           title="Registra tu negocio"
-          subtitle="Empieza gratis — sin tarjeta de crédito."
+          subtitle="3 días gratis · $0 hoy · luego $20/mes por 3 meses · cancela cuando quieras"
         />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {planKey && <input type="hidden" name="_plan" value={planKey} />}
+          {interval && <input type="hidden" name="_interval" value={interval} />}
           <Field label="Nombre del negocio" name="business_name" placeholder="Ej. Sushi Kazán" />
 
           <div
@@ -140,13 +166,33 @@ export default function RegistroW1Page() {
               gap: 14,
             }}
           >
-            <Field label="Nombre del dueño" name="owner_first_name" placeholder="Eduardo" />
-            <Field label="Apellido" name="owner_last_name" placeholder="Murrieta" />
+            <Field label="Nombre del dueño" name="owner_first_name">
+              <CapitalizedInput name="owner_first_name" placeholder="Eduardo" />
+            </Field>
+            <Field label="Apellido" name="owner_last_name">
+              <CapitalizedInput name="owner_last_name" placeholder="Murrieta" />
+            </Field>
           </div>
 
           <Field label="Correo electrónico" name="email" type="email" placeholder="tu@correo.com" />
 
-          <Field label="Teléfono (opcional)" name="phone" type="tel" placeholder="667 000 0000" required={false} />
+          <Field label="Teléfono" name="phone">
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="667 000 0000"
+              inputMode="numeric"
+              maxLength={10}
+              pattern="\d{10}"
+              required
+              title="Ingresa los 10 dígitos de tu teléfono sin espacios ni guiones"
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+              }}
+              style={INPUT_STYLE}
+            />
+          </Field>
 
           {/* Password with toggle */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>

@@ -40,6 +40,13 @@ export default async function NegocioExitoPage() {
     ? `/${businessSlug}/`
     : '/';
 
+  const trialEndDate = new Date();
+  trialEndDate.setDate(trialEndDate.getDate() + 3);
+  const trialEndLabel = trialEndDate.toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'long',
+  });
+
   return (
     <main
       style={{
@@ -124,12 +131,45 @@ export default async function NegocioExitoPage() {
           </h1>
           <p style={{ fontSize: 16, color: '#57544f', lineHeight: 1.6, margin: 0 }}>
             Tu periodo de prueba ha comenzado.{' '}
-            Empieza a crear pedidos y conecta a tus repartidores desde el panel.
+            Publica tu primer pedido y el repartidor más cercano lo toma.
           </p>
         </div>
 
         {/* Divider */}
         <div style={{ width: '100%', height: 1, background: '#DED7C9' }} />
+
+        {/* Trial status card */}
+        <div
+          style={{
+            width: '100%',
+            background: '#F6FFDC',
+            border: '1px solid #C6FF3D',
+            borderRadius: 14,
+            padding: '14px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              background: '#4CAF50',
+              flex: 'none',
+              boxShadow: '0 0 0 3px #C6FF3D',
+            }}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#121214' }}>
+              Trial activo · 3 días gratis
+            </span>
+            <span style={{ fontSize: 13, color: '#57544f' }}>
+              Primer cobro el {trialEndLabel} · <strong style={{ color: '#121214' }}>$20/mes por 3 meses</strong> · cancela cuando quieras
+            </span>
+          </div>
+        </div>
 
         {/* What's next */}
         <div
@@ -142,9 +182,9 @@ export default async function NegocioExitoPage() {
           }}
         >
           {[
-            'Crea tu primer pedido en segundos',
-            'Invita a tu equipo y repartidores',
-            'Monitorea entregas en tiempo real',
+            'Publica un pedido en menos de 15 segundos',
+            'El repartidor más cercano lo toma solo',
+            'Sigue la entrega en tiempo real desde el panel',
           ].map((item) => (
             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div
@@ -193,7 +233,7 @@ export default async function NegocioExitoPage() {
             width: '100%',
           }}
         >
-          Ir a mi panel \u2192
+          Publicar mi primer pedido →
         </a>
       </div>
     </main>

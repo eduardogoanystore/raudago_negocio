@@ -9,6 +9,8 @@ export interface SubscriptionPlan {
   promo_months: number;
   promo_price_cents: number | null;
   promo_interval?: string | null;
+  trial_days: number;
+  sort_order: number;
   features?: string[] | null;
   is_default?: boolean;
 }

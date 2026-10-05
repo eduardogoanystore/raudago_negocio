@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import { GraphQLClient } from 'graphql-request';
 import type { SubscriptionPlan, UserSubscription } from '@/lib/subscription';
 import { MY_SUBSCRIPTION_QUERY } from '@/lib/subscription';
-
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -89,6 +88,8 @@ export async function getPlans(
       price_annual_cents: p.priceAnnualCents,
       promo_months: p.promoMonths,
       promo_price_cents: p.promoPriceCents,
+      trial_days: p.trialDays,
+      sort_order: p.sortOrder,
     }));
   } catch {
     return [];

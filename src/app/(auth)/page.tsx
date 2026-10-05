@@ -33,8 +33,8 @@ export default async function NegocioIndexPage() {
       });
       redirect(`/${business.slug}/`);
     }
-  } catch {
-    // Si falla la query, mandamos a login
+  } catch (err) {
+    console.error('[Dispatcher] myBusiness error:', err);
   }
 
   redirect('/login');

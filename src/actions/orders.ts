@@ -1,8 +1,46 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getServerClient } from '@/graphql/client';
+
+// ─── Resuelve links cortos de Google Maps (maps.app.goo.gl) ──────────────────
+// CORS bloquea esto en el browser — debe correr server-side
+export async function resolveMapsShortLinkAction(
+  shortUrl: string
+): Promise<{ resolvedUrl: string } | { error: string }> {
+  try {
+    const res = await fetch(shortUrl, { method: 'HEAD', redirect: 'follow' });
+    return { resolvedUrl: res.url };
+  } catch {
+    return { error: 'No se pudo resolver el link' };
+  }
+}
+
+// ─── Calcula distancia por ruta real via Distance Matrix API ─────────────────
+// CORS bloquea la Distance Matrix API desde el browser — corre server-side
+export async function calcDrivingDistanceAction(
+  originLat: number,
+  originLng: number,
+  destLat: number,
+  destLng: number
+): Promise<{ km: number } | { error: string }> {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) return { error: 'API key no configurada' };
+  try {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${originLat},${originLng}&destinations=${destLat},${destLng}&key=${key}&language=es`
+    );
+    const data = await res.json();
+    const element = data?.rows?.[0]?.elements?.[0];
+    if (element?.status === 'OK' && element?.distance?.value) {
+      const km = Math.round((element.distance.value / 1000) * 10) / 10;
+      return { km };
+    }
+    return { error: element?.status ?? data?.status ?? 'UNKNOWN' };
+  } catch {
+    return { error: 'NETWORK_ERROR' };
+  }
+}
 
 const CREATE_DELIVERY_ORDER = `
   mutation createDeliveryOrder($input: DeliveryOrderInput!) {
@@ -15,6 +53,7 @@ const CREATE_DELIVERY_ORDER = `
 
 export interface CreateOrderActionState {
   error?: string;
+  redirectTo?: string;
 }
 
 export async function createOrderAction(
@@ -30,6 +69,9 @@ export async function createOrderAction(
   const product_amount_raw = formData.get('product_amount') as string;
   const notes_raw = (formData.get('notes') as string)?.trim();
   const shipping_paid_by = (formData.get('shipping_paid_by') as string) || 'client';
+  const recipient_lat_raw = formData.get('recipient_lat') as string;
+  const recipient_lng_raw = formData.get('recipient_lng') as string;
+  const branch_id_raw = (formData.get('branch_id') as string) || undefined;
 
   if (!recipient_name || !recipient_phone || !recipient_address) {
     return { error: 'Los datos del destinatario son obligatorios.' };
@@ -66,6 +108,20 @@ export async function createOrderAction(
     input.notes = notes_raw;
   }
 
+  if (recipient_lat_raw && recipient_lat_raw.trim() !== '') {
+    const recipient_lat = parseFloat(recipient_lat_raw);
+    if (!isNaN(recipient_lat)) input.recipient_lat = recipient_lat;
+  }
+
+  if (recipient_lng_raw && recipient_lng_raw.trim() !== '') {
+    const recipient_lng = parseFloat(recipient_lng_raw);
+    if (!isNaN(recipient_lng)) input.recipient_lng = recipient_lng;
+  }
+
+  if (branch_id_raw && branch_id_raw.trim() !== '') {
+    input.branch_id = branch_id_raw.trim();
+  }
+
   let client;
   try {
     client = await getServerClient();
@@ -97,7 +153,7 @@ export async function createOrderAction(
     };
   }
 
-  redirect(`/${negocio_slug}/pedidos`);
+  return { redirectTo: `/${negocio_slug}/pedidos` };
 }
 
 const CONFIRM_PRODUCT_PAYMENT = `

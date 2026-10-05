@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
 
 export interface PlaceResult {
   address: string;
@@ -16,85 +15,158 @@ interface Props {
   placeholder?: string;
 }
 
-let loaderInstance: Loader | null = null;
+let isInitializing = false;
+let isLoaded = false;
+const loadCallbacks: (() => void)[] = [];
 
-function getLoader() {
-  if (!loaderInstance) {
-    loaderInstance = new Loader({
-      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
-      version: 'weekly',
-      libraries: ['places'],
-    });
-  }
-  return loaderInstance;
+function loadGoogleMaps(apiKey: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (isLoaded) {
+      resolve();
+      return;
+    }
+
+    loadCallbacks.push(() => resolve());
+
+    if (isInitializing) return;
+    isInitializing = true;
+
+    (window as any).initGoogleMaps = () => {
+      isLoaded = true;
+      isInitializing = false;
+      loadCallbacks.forEach((cb) => cb());
+      loadCallbacks.length = 0;
+    };
+
+    const script = document.createElement('script');
+    // Añadimos &loading=async para cumplir con las mejores prácticas de Google Maps
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=weekly&loading=async&callback=initGoogleMaps`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  });
 }
 
 export function PlacesAutocomplete({ onSelect, inputStyle, placeholder }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState('');
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      setReady(true); // fallback: plain text input
+      setReady(true);
       return;
     }
 
-    getLoader()
-      .load()
-      .then(() => setReady(true))
-      .catch(() => setReady(true));
+    loadGoogleMaps(apiKey).then(() => {
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
-    if (!ready || !inputRef.current) return;
+    if (!ready || !containerRef.current) return;
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const autocomplete = new (window as any).google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: 'mx' },
-      fields: ['formatted_address', 'geometry', 'address_components'],
-      types: ['address'],
-    });
+    let isMounted = true;
+    let placeAutocomplete: any = null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (!place.geometry) return;
+    const initNewAutocomplete = async () => {
+      try {
+        const { PlaceAutocompleteElement } = await (window.google.maps as any).importLibrary('places');
 
-      const lat = place.geometry.location?.lat() ?? null;
-      const lng = place.geometry.location?.lng() ?? null;
+        if (!isMounted || !containerRef.current) return;
 
-      // Extract city from address_components
-      const cityComponent = place.address_components?.find(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
-      );
-      const city = cityComponent?.long_name ?? 'Culiacán';
+        // Configuramos las restricciones de país usando includedRegionCodes en lugar de componentRestrictions
+        placeAutocomplete = new PlaceAutocompleteElement({
+          includedRegionCodes: ['mx'], // Restringe a México de forma nativa en la nueva API
+          placeholder: placeholder ?? 'Av. Álvaro Obregón 1840, Centro, Culiacán',
+        });
+        
+        containerRef.current.innerHTML = '';
+        containerRef.current.appendChild(placeAutocomplete);
 
-      const address = place.formatted_address ?? inputRef.current?.value ?? '';
-      setValue(address);
-      onSelect({ address, lat, lng, city });
-    });
+        placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }: any) => {
+          if (!placePrediction) return;
+
+          const place = placePrediction.toPlace();
+          
+          await place.fetchFields({
+            fields: ['formattedAddress', 'location', 'addressComponents'],
+          });
+
+          const address = place.formattedAddress ?? '';
+          const lat = place.location?.lat() ?? null;
+          const lng = place.location?.lng() ?? null;
+
+          const cityComponent = place.addressComponents?.find(
+            (c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+          );
+          const city = cityComponent?.longValue ?? cityComponent?.text ?? '';
+
+          setValue(address);
+          onSelect({ address, lat, lng, city });
+        });
+      } catch (error) {
+        console.error('Error al inicializar Places API (New):', error);
+      }
+    };
+
+    initNewAutocomplete();
 
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).google?.maps?.event?.clearInstanceListeners?.(autocomplete);
+      isMounted = false;
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
     };
-  }, [ready, onSelect]);
+  }, [ready, onSelect, placeholder]);
+
+  if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+    return (
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={placeholder ?? 'Av. Álvaro Obregón 1840, Centro, Culiacán'}
+        required
+        autoComplete="off"
+        style={inputStyle}
+      />
+    );
+  }
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      placeholder={placeholder ?? 'Av. Álvaro Obregón 1840, Centro, Culiacán'}
-      required
-      autoComplete="off"
-      style={inputStyle}
-    />
+    <>
+      <style>{`
+        gmp-place-autocomplete {
+          width: 100%;
+          display: block;
+          color-scheme: light;
+          --gmp-place-autocomplete-background-color: #FFFDFA;
+          --gmp-place-autocomplete-border-color: #DED7C9;
+          --gmp-place-autocomplete-border-radius: 12px;
+          --gmp-place-autocomplete-font-family: inherit;
+          --gmp-place-autocomplete-font-size: 15px;
+          --gmp-place-autocomplete-color: #121214;
+          --gmp-place-autocomplete-placeholder-color: #aba79f;
+          --gmp-place-autocomplete-input-height: 48px;
+          --gmp-place-autocomplete-padding-x: 16px;
+          --gmpx-color-surface: #FFFDFA;
+          --gmpx-color-on-surface: #121214;
+          --gmpx-color-on-surface-variant: #aba79f;
+          --gmpx-color-primary: #6C47FF;
+          --gmpx-font-family-base: inherit;
+          --gmpx-font-size-base: 15px;
+        }
+        gmp-place-autocomplete:focus-within {
+          --gmp-place-autocomplete-border-color: #6C47FF;
+          --gmpx-color-primary: #6C47FF;
+          outline: none;
+        }
+      `}</style>
+      <div ref={containerRef} style={{ width: '100%' }} />
+    </>
   );
 }

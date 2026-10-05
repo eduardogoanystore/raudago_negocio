@@ -15,6 +15,7 @@ const TIPO_LABEL: Record<string, string> = {
   terminos: 'Términos y Condiciones',
   privacidad: 'Aviso de Privacidad',
   codigo_conducta: 'Código de Conducta',
+  politicas_internas: 'Políticas Operativas Internas',
 };
 
 export function LegalReacceptModal({ docs }: { docs: LegalDoc[] }) {
@@ -85,7 +86,7 @@ export function LegalReacceptModal({ docs }: { docs: LegalDoc[] }) {
                 <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>v{doc.version}</span>
               </div>
               <a
-                href={`/${doc.tipo === 'codigo_conducta' ? 'codigo-conducta' : doc.tipo}`}
+                href={`/${doc.tipo}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ fontSize: '0.8rem', color: '#6C47FF', fontWeight: 500 }}

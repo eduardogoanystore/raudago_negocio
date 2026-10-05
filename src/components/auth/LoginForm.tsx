@@ -35,14 +35,23 @@ export function LoginForm({ siteKey }: { siteKey: string }) {
     e.preventDefault();
     setPending(true);
     setError(null);
+
+    // Guardamos el formulario antes de la pausa asíncrona
+    const formElement = e.currentTarget;
+
     try {
       const token = await getCaptcha(siteKey);
-      const formData = new FormData(e.currentTarget);
+      
+      // Usamos la constante guardada en lugar de e.currentTarget
+      const formData = new FormData(formElement);
+      
       const result = await loginBusinessAction(token, formData);
       if (result?.error) setError(result.error);
-    } catch {
+    } catch (err) {
+      // Next.js redirect() throws a special error — keep button disabled until navigation completes
+      if (err instanceof Error && err.message === 'NEXT_REDIRECT') return;
+      console.error("DEBUG CAPTCHA/LOGIN ERROR:", err);
       setError('Error al verificar. Intenta de nuevo.');
-    } finally {
       setPending(false);
     }
   }

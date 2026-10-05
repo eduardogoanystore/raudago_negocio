@@ -54,7 +54,7 @@ export default async function TerminosPage() {
         </h1>
         <p style={{ fontSize: '0.875rem', color: '#6B6B75', marginBottom: '2.5rem' }}>
           {doc
-            ? `Versión ${doc.version} — ${new Date(doc.publicado_en).toLocaleDateString('es-MX')}`
+            ? `Versión ${doc.version} — ${new Date(doc.publicado_en.replace(" ", "T")).toLocaleDateString("es-MX")}`
             : ''}
         </p>
 

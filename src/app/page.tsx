@@ -36,8 +36,9 @@ export default async function LandingPage() {
       {/* ── Responsive styles ── */}
       <style>{`
         @keyframes rgPulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: .72; }
+          0%   { box-shadow: 0 0 0 0 rgba(198,255,61,.45); }
+          70%  { box-shadow: 0 0 0 14px rgba(198,255,61,0); }
+          100% { box-shadow: 0 0 0 0 rgba(198,255,61,0); }
         }
 
         /* ── Navbar ── */
@@ -62,7 +63,7 @@ export default async function LandingPage() {
         #rg-hero {
           max-width: 1180px;
           margin: 0 auto;
-          padding: 80px 24px 96px;
+          padding: 64px 24px 72px;
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 64px;
@@ -114,7 +115,7 @@ export default async function LandingPage() {
           margin: 0 auto;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 64px;
+          gap: 44px;
           align-items: start;
           box-sizing: border-box;
         }
@@ -162,7 +163,7 @@ export default async function LandingPage() {
         }
         #rg-faq-title {
           font-family: var(--font-poppins), system-ui, sans-serif;
-          font-size: 38px;
+          font-size: 36px;
           font-weight: 700;
           letter-spacing: -.03em;
           color: #121214;
@@ -326,7 +327,7 @@ export default async function LandingPage() {
                 fontWeight: 700,
                 padding: '6px 14px',
                 borderRadius: 999,
-                letterSpacing: '.01em',
+                letterSpacing: '.04em',
               }}
             >
               3 días gratis · Promo: 3 meses a $20/mes
@@ -347,7 +348,7 @@ export default async function LandingPage() {
               href="/registro"
               style={{
                 height: 58,
-                padding: '0 32px',
+                padding: '0 28px',
                 borderRadius: 999,
                 background: '#6C47FF',
                 color: '#ffffff',
@@ -364,10 +365,10 @@ export default async function LandingPage() {
               href="#como-funciona"
               style={{
                 height: 58,
-                padding: '0 32px',
+                padding: '0 28px',
                 borderRadius: 999,
-                background: '#ffffff',
-                border: '2px solid #DED7C9',
+                background: '#FFFDFA',
+                border: '1px solid #DED7C9',
                 color: '#121214',
                 fontSize: 17,
                 fontWeight: 700,
@@ -392,7 +393,7 @@ export default async function LandingPage() {
             overflow: 'hidden',
             background: '#121214',
             borderRadius: 24,
-            padding: '28px 24px',
+            padding: '26px',
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
@@ -406,7 +407,7 @@ export default async function LandingPage() {
             <span
               style={{
                 fontFamily: 'var(--font-mono), monospace',
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: 500,
                 color: '#C6FF3D',
                 background: 'rgba(198,255,61,.1)',
@@ -421,9 +422,10 @@ export default async function LandingPage() {
           {/* Address */}
           <div
             style={{
-              background: 'rgba(255,255,255,.06)',
-              borderRadius: 12,
-              padding: '14px 16px',
+              background: '#1C1C21',
+              border: '1px solid #2A2A31',
+              borderRadius: 16,
+              padding: '18px',
               display: 'flex',
               alignItems: 'center',
               gap: 10,
@@ -439,17 +441,17 @@ export default async function LandingPage() {
           </div>
 
           {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '10px 12px' }}>
-              <div style={{ fontSize: 11, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Distancia</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+            <div style={{ background: '#1C1C21', border: '1px solid #2A2A31', borderRadius: 10, padding: '10px 12px' }}>
+              <div style={{ fontSize: 13, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Distancia</div>
               <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 16, fontWeight: 500, color: '#F3EFE7' }}>6.1 km</div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '10px 12px' }}>
-              <div style={{ fontSize: 11, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Tarifa</div>
+            <div style={{ background: '#1C1C21', border: '1px solid #2A2A31', borderRadius: 10, padding: '10px 12px' }}>
+              <div style={{ fontSize: 13, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Tarifa</div>
               <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 16, fontWeight: 500, color: '#C6FF3D' }}>$70</div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 10, padding: '10px 12px' }}>
-              <div style={{ fontSize: 11, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Elegibles</div>
+            <div style={{ background: '#1C1C21', border: '1px solid #2A2A31', borderRadius: 10, padding: '10px 12px' }}>
+              <div style={{ fontSize: 13, color: '#8E8B93', fontWeight: 500, marginBottom: 4 }}>Elegibles</div>
               <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 16, fontWeight: 500, color: '#F3EFE7' }}>14</div>
             </div>
           </div>
@@ -458,15 +460,15 @@ export default async function LandingPage() {
           <button
             style={{
               width: '100%',
-              height: 52,
-              borderRadius: 14,
+              height: 54,
+              borderRadius: 999,
               background: '#C6FF3D',
               border: 'none',
               color: '#121214',
               fontSize: 16,
               fontWeight: 700,
               cursor: 'pointer',
-              animation: 'rgPulse 2.2s ease infinite',
+              animation: 'rgPulse 2.2s ease-out infinite',
             }}
           >
             Publicar pedido
@@ -475,9 +477,10 @@ export default async function LandingPage() {
           {/* Driver card */}
           <div
             style={{
-              background: 'rgba(255,255,255,.05)',
+              background: '#1C1C21',
+              border: '1px solid #2A2A31',
               borderRadius: 14,
-              padding: '14px 16px',
+              padding: '14px',
               display: 'flex',
               alignItems: 'center',
               gap: 12,
@@ -485,10 +488,10 @@ export default async function LandingPage() {
           >
             <div
               style={{
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #6C47FF 0%, #C6FF3D 100%)',
+                background: 'linear-gradient(140deg, #4B2FD6, #8A6CFF)',
                 flex: 'none',
               }}
             />
@@ -524,7 +527,7 @@ export default async function LandingPage() {
           background: '#FFFDFA',
           borderTop: '1px solid #DED7C9',
           borderBottom: '1px solid #DED7C9',
-          padding: '80px 24px',
+          padding: '60px 24px',
         }}
       >
         <div id="rg-problem-grid">
@@ -542,7 +545,7 @@ export default async function LandingPage() {
             >
               Como está hoy
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
                 'Dictas la dirección por audio y el repartidor la anota mal.',
                 'Preguntas "¿quién puede?" y nadie contesta en hora pico.',
@@ -553,20 +556,14 @@ export default async function LandingPage() {
                 <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
+                      width: 7,
+                      height: 7,
+                      borderRadius: 999,
                       background: '#FF5A5F',
-                      display: 'grid',
-                      placeItems: 'center',
-                      flex: 'none',
-                      marginTop: 2,
+                      flexShrink: 0,
+                      marginTop: 8,
                     }}
-                  >
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round">
-                      <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                  </div>
+                  />
                   <span style={{ fontSize: 16, color: '#57544f', lineHeight: 1.55 }}>{item}</span>
                 </div>
               ))}
@@ -587,7 +584,7 @@ export default async function LandingPage() {
             >
               Con RaudaGo
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
                 'Dirección con autocompletado y mapa. Queda escrita.',
                 'El pedido llega a los repartidores elegibles de tu zona.',
@@ -596,22 +593,9 @@ export default async function LandingPage() {
                 'Corte semanal con cada pedido, su distancia y su costo.',
               ].map((item) => (
                 <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
-                      background: '#6C47FF',
-                      display: 'grid',
-                      placeItems: 'center',
-                      flex: 'none',
-                      marginTop: 2,
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </div>
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
                   <span style={{ fontSize: 16, color: '#57544f', lineHeight: 1.55 }}>{item}</span>
                 </div>
               ))}
@@ -623,7 +607,7 @@ export default async function LandingPage() {
       {/* ── Cómo funciona ── */}
       <section
         id="como-funciona"
-        style={{ padding: '96px 24px', maxWidth: 1180, margin: '0 auto', boxSizing: 'border-box' }}
+        style={{ padding: '72px 24px', maxWidth: 1180, margin: '0 auto', boxSizing: 'border-box' }}
       >
         <div style={{ marginBottom: 56 }}>
           <div
@@ -668,16 +652,16 @@ export default async function LandingPage() {
                 background: '#FFFDFA',
                 border: '1px solid #DED7C9',
                 borderRadius: 18,
-                padding: '32px 28px',
+                padding: '26px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 16,
+                gap: 12,
               }}
             >
               <div
                 style={{
                   fontFamily: 'var(--font-mono), monospace',
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: 500,
                   color: '#6C47FF',
                   letterSpacing: '.06em',
@@ -688,7 +672,7 @@ export default async function LandingPage() {
               <h3
                 style={{
                   fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: '#121214',
                   lineHeight: 1.2,
@@ -710,7 +694,7 @@ export default async function LandingPage() {
           background: '#FFFDFA',
           borderTop: '1px solid #DED7C9',
           borderBottom: '1px solid #DED7C9',
-          padding: '96px 24px',
+          padding: '72px 24px',
         }}
       >
         <div id="rg-rates-grid">
@@ -733,7 +717,7 @@ export default async function LandingPage() {
                 El mismo precio para todos, siempre
               </h2>
             </div>
-            <p style={{ fontSize: 17, color: '#57544f', lineHeight: 1.65 }}>
+            <p style={{ fontSize: 18, color: '#57544f', lineHeight: 1.65 }}>
               No negociamos tarifa con ningún repartidor ni con ningún negocio. La distancia determina el costo y lo ves antes de publicar. Sin sorpresas al final del día.
             </p>
 
@@ -741,14 +725,13 @@ export default async function LandingPage() {
             <div
               style={{
                 background: '#F3EFE7',
-                borderRadius: 14,
-                padding: '20px 22px',
-                border: '1px solid #DED7C9',
+                borderRadius: 16,
+                padding: '20px',
               }}
             >
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: '#121214',
                   marginBottom: 10,
@@ -757,7 +740,7 @@ export default async function LandingPage() {
               >
                 Cinco formas de cobrar
               </div>
-              <p style={{ fontSize: 15, color: '#57544f', lineHeight: 1.6 }}>
+              <p style={{ fontSize: 16, color: '#57544f', lineHeight: 1.6 }}>
                 Efectivo, transferencia, pago en línea, cobro al cliente o ya pagado. Tú eliges pedido por pedido y el sistema lo registra.
               </p>
             </div>
@@ -771,7 +754,7 @@ export default async function LandingPage() {
                 background: '#121214',
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                padding: '14px 20px',
+                padding: '14px 22px',
               }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: '#8E8B93', letterSpacing: '.04em', textTransform: 'uppercase' }}>Distancia</span>
@@ -791,14 +774,14 @@ export default async function LandingPage() {
               { range: '10.5 – 11.4 km', price: '$90' },
               { range: '11.5 – 12.4 km', price: '$95' },
               { range: '12.5 – 13.4 km', price: '$100' },
-            ].map((row, i) => (
+            ].map((row) => (
               <div
                 key={row.range}
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
-                  padding: '12px 20px',
-                  background: i % 2 === 0 ? '#F3EFE7' : '#FFFDFA',
+                  padding: '13px 22px',
+                  background: '#FFFDFA',
                   borderBottom: '1px solid #E5E0D8',
                 }}
               >
@@ -825,8 +808,8 @@ export default async function LandingPage() {
             ))}
 
             {/* Footer */}
-            <div style={{ padding: '14px 20px', background: '#F3EFE7' }}>
-              <span style={{ fontSize: 13, color: '#57544f', lineHeight: 1.5 }}>
+            <div style={{ padding: '14px 22px', background: '#F3EFE7' }}>
+              <span style={{ fontSize: 15, color: '#57544f', lineHeight: 1.5 }}>
                 Arriba de 13.4 km se suman $5 por kilómetro. Sin cargos sorpresa.
               </span>
             </div>
@@ -842,17 +825,17 @@ export default async function LandingPage() {
         style={{
           background: '#FFFDFA',
           borderTop: '1px solid #DED7C9',
-          padding: '96px 24px',
+          padding: '72px 24px',
         }}
       >
         <div id="rg-faq-grid">
           {/* Left */}
           <h2 id="rg-faq-title">
-            Preguntas frecuentes
+            Preguntas que siempre nos hacen
           </h2>
 
           {/* Right — Questions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
             {[
               {
                 q: '¿Los repartidores son de RaudaGo?',
@@ -868,7 +851,7 @@ export default async function LandingPage() {
               },
               {
                 q: '¿Cuánta gente de mi equipo puede usarlo?',
-                a: '3 usuarios en Starter y 10 en Pro. Cada uno con su acceso y permisos independientes. No se comparte contraseña.',
+                a: 'Hasta 5 usuarios en el plan Starter. Cada uno con su acceso y permisos independientes. Si tienes más sucursales o un equipo más grande, lo negociamos en el plan Cadenas.',
               },
               {
                 q: '¿Necesito contrato?',
@@ -897,7 +880,7 @@ export default async function LandingPage() {
         id="registro"
         style={{
           background: '#121214',
-          padding: '96px 24px',
+          padding: '80px 24px',
         }}
       >
         <div
@@ -915,7 +898,7 @@ export default async function LandingPage() {
             Tu próximo pedido puede salir en 15 segundos
           </h2>
 
-          <p style={{ fontSize: 18, color: '#8E8B93', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 19, color: '#8E8B93', lineHeight: '28px' }}>
             Regístrate, prueba tres días y decide después. Culiacán primero; seguimos con el resto de Sinaloa.
           </p>
 
@@ -924,12 +907,12 @@ export default async function LandingPage() {
               href="/registro"
               style={{
                 height: 58,
-                padding: '0 36px',
+                padding: '0 30px',
                 borderRadius: 999,
                 background: '#C6FF3D',
                 color: '#121214',
                 fontSize: 17,
-                fontWeight: 700,
+                fontWeight: 800,
                 display: 'inline-flex',
                 alignItems: 'center',
                 whiteSpace: 'nowrap',
@@ -943,10 +926,10 @@ export default async function LandingPage() {
               rel="noopener noreferrer"
               style={{
                 height: 58,
-                padding: '0 36px',
+                padding: '0 30px',
                 borderRadius: 999,
                 background: 'transparent',
-                border: '2px solid #2A2A31',
+                border: '1px solid #2A2A31',
                 color: '#F3EFE7',
                 fontSize: 17,
                 fontWeight: 700,
@@ -966,7 +949,7 @@ export default async function LandingPage() {
         style={{
           background: '#121214',
           borderTop: '1px solid #2A2A31',
-          padding: '32px 24px',
+          padding: '26px 24px',
         }}
       >
         <div
@@ -996,12 +979,12 @@ export default async function LandingPage() {
               >
                 RaudaGo
               </div>
-              <div style={{ fontSize: 12, color: '#8E8B93', marginTop: 1 }}>Culiacán, Sinaloa</div>
+              <div style={{ fontSize: 14, color: '#57545C', marginTop: 1 }}>Culiacán, Sinaloa</div>
             </div>
           </div>
 
           {/* Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
             <a href="/terminos" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Términos
             </a>
@@ -1016,9 +999,6 @@ export default async function LandingPage() {
             </a>
             <a href="/repartidores" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
               Soy repartidor
-            </a>
-            <a href="mailto:jesus.ed13@gmail.com" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              jesus.ed13@gmail.com
             </a>
           </div>
         </div>

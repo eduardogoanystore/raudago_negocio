@@ -18,7 +18,7 @@ export default async function PrivacidadPage() {
   try {
     const data = await publicClient.request<{
       legalDocumentActivo: { version: string; contenido: string; publicado_en: string }
-    }>(QUERY, { tipo: 'privacidad' })
+    }>(QUERY, { tipo: 'politicas-internas' })
     doc = data.legalDocumentActivo
   } catch {
     // non-fatal — mostrar fallback
@@ -50,12 +50,10 @@ export default async function PrivacidadPage() {
             letterSpacing: '-0.02em',
           }}
         >
-          Aviso de Privacidad
+          Políticas Operativas Internas
         </h1>
         <p style={{ fontSize: '0.875rem', color: '#6B6B75', marginBottom: '2.5rem' }}>
-          {doc
-            ? `Versión ${doc.version} — ${new Date(doc.publicado_en.replace(" ", "T")).toLocaleDateString("es-MX")}`
-            : ''}
+          {doc ? `Documento de trabajo, no es un contrato legal.` : ''}
         </p>
 
         {doc ? (

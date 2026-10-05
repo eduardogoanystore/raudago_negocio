@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+const PORTAL_URL = process.env.NEXT_PUBLIC_PORTAL_URL ?? '';
+
 export interface SubscriptionPlan {
   id: string;
   key: string;
@@ -180,168 +182,204 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
       </div>
 
       {/* Plan cards */}
-      <div id="rg-plan-cards">
-        {sorted.map((plan, idx) => {
-          const isDark = idx === 1;
-          const price = planPrice(plan, interval);
-          const note = savingsNote(plan, interval);
-          const hasPromo = plan.promoMonths > 0 && plan.promoPriceCents != null;
+      {sorted.length > 0 && (
+        <div id="rg-plan-cards">
+          {sorted.map((plan) => {
+            const isCadenas = plan.key === 'cadenas';
+            const price = planPrice(plan, interval);
+            const note = savingsNote(plan, interval);
+            const hasPromo = plan.promoMonths > 0 && plan.promoPriceCents != null;
 
-          return (
-            <div
-              key={plan.id}
-              style={{
-                background: isDark ? '#121214' : '#FFFDFA',
-                border: isDark ? 'none' : '1px solid #DED7C9',
-                borderRadius: 22,
-                padding: 30,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 20,
-                position: 'relative',
-                minWidth: 0,
-              }}
-            >
-              {isDark && (
-                <span
+            if (isCadenas) {
+              return (
+                <div
+                  key={plan.id}
                   style={{
-                    position: 'absolute',
-                    top: -13,
-                    left: 30,
-                    height: 28,
-                    padding: '0 13px',
+                    background: '#121214',
+                    borderRadius: 22,
+                    padding: 30,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 20,
+                    position: 'relative',
+                    minWidth: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -13,
+                      left: 30,
+                      height: 28,
+                      padding: '0 13px',
+                      borderRadius: 999,
+                      background: '#C6FF3D',
+                      color: '#121214',
+                      fontSize: 12,
+                      fontWeight: 800,
+                      letterSpacing: '.04em',
+                      textTransform: 'uppercase',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    3 sucursales o más
+                  </span>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.01em', color: '#F3EFE7' }}>
+                      {plan.name}
+                    </div>
+                    <div style={{ fontSize: 15, color: '#8E8B93' }}>
+                      Una sola suscripción para todas tus sucursales.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: '#C6FF3D', letterSpacing: '-.01em' }}>
+                      A tu medida
+                    </div>
+                    <span style={{ fontSize: 15, color: '#8E8B93', lineHeight: 1.5 }}>
+                      Precio según el número de sucursales. Si ya usas Starter, te cambiamos y{' '}
+                      <strong style={{ color: '#F3EFE7' }}>se descuenta lo que ya pagaste.</strong>
+                    </span>
+                  </div>
+
+                  <a
+                    href={`${PORTAL_URL}/registro?plan=${plan.key}&interval=${interval}`}
+                    style={{
+                      height: 54,
+                      borderRadius: 999,
+                      background: '#C6FF3D',
+                      color: '#121214',
+                      fontSize: 16,
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Probar {plan.trialDays > 0 ? `${plan.trialDays} días gratis` : 'ahora'}
+                  </a>
+
+                  <div style={{ height: 1, background: '#2A2A31' }} />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                    {[
+                      'Sucursales sin tope',
+                      'Usuarios según tu operación',
+                      'Todo lo de Starter',
+                      'Reportes por sucursal',
+                      'Facturación central',
+                    ].map((f) => (
+                      <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C6FF3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                        <span style={{ fontSize: 16, lineHeight: '24px', color: '#F3EFE7' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={plan.id}
+                style={{
+                  background: '#FFFDFA',
+                  border: '1px solid #DED7C9',
+                  borderRadius: 22,
+                  padding: 30,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 20,
+                  minWidth: 0,
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.01em', color: '#121214' }}>
+                    {plan.name}
+                  </div>
+                  <div style={{ fontSize: 15, color: '#57544f' }}>
+                    Hasta 2 sucursales, pedidos ilimitados.
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+                        fontSize: 46,
+                        fontWeight: 700,
+                        letterSpacing: '-.03em',
+                        lineHeight: 1,
+                        color: '#121214',
+                      }}
+                    >
+                      ${price.toLocaleString('es-MX')}
+                    </span>
+                    <span style={{ fontSize: 17, color: '#57544f' }}>{perLabel(interval)}</span>
+                  </div>
+                  <span style={{ fontSize: 13, color: '#9B9590' }}>IVA incluido</span>
+                  <span style={{ fontSize: 15, color: '#57544f' }}>{note}</span>
+                  {hasPromo && (
+                    <span style={{ fontSize: 14, color: '#57544f' }}>
+                      Primeros {plan.promoMonths} meses a{' '}
+                      <strong style={{ color: '#121214' }}>
+                        ${(plan.promoPriceCents! / 100).toLocaleString('es-MX')}/mes
+                      </strong>
+                    </span>
+                  )}
+                </div>
+
+                <a
+                  href={`${PORTAL_URL}/registro?plan=${plan.key}&interval=${interval}`}
+                  style={{
+                    height: 54,
                     borderRadius: 999,
-                    background: '#C6FF3D',
-                    color: '#121214',
-                    fontSize: 12,
-                    fontWeight: 800,
-                    letterSpacing: '.04em',
-                    textTransform: 'uppercase',
-                    display: 'inline-flex',
+                    background: '#121214',
+                    color: '#C6FF3D',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Más elegido
-                </span>
-              )}
+                  Probar {plan.trialDays > 0 ? `${plan.trialDays} días gratis` : 'ahora'}
+                </a>
 
-              {/* Plan name + subtitle */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    letterSpacing: '-.01em',
-                    color: isDark ? '#F3EFE7' : '#121214',
-                  }}
-                >
-                  {plan.name}
-                </div>
-                <div style={{ fontSize: 15, color: isDark ? '#8E8B93' : '#57544f' }}>
-                  {idx === 0 ? 'Un solo local, sin complicarse.' : 'Varias sucursales y turnos completos.'}
+                <div style={{ height: 1, background: '#F0EBE1' }} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                  {[
+                    'Hasta 2 sucursales',
+                    'Hasta 5 usuarios del equipo',
+                    'Pedidos ilimitados',
+                    'Pedidos programados',
+                    'Seguimiento en vivo y corte semanal',
+                  ].map((f) => (
+                    <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                      <span style={{ fontSize: 16, lineHeight: '24px', color: '#121214' }}>{f}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* Price block */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                      fontSize: 46,
-                      fontWeight: 700,
-                      letterSpacing: '-.03em',
-                      lineHeight: 1,
-                      color: isDark ? '#C6FF3D' : '#121214',
-                    }}
-                  >
-                    ${price.toLocaleString('es-MX')}
-                  </span>
-                  <span style={{ fontSize: 17, color: isDark ? '#8E8B93' : '#57544f' }}>
-                    {perLabel(interval)}
-                  </span>
-                </div>
-
-                <span style={{ fontSize: 13, color: isDark ? '#6B6B75' : '#9B9590' }}>IVA incluido</span>
-                <span style={{ fontSize: 15, color: isDark ? '#8E8B93' : '#57544f' }}>{note}</span>
-
-                {hasPromo && (
-                  <span style={{ fontSize: 14, color: isDark ? '#8E8B93' : '#57544f' }}>
-                    Primeros {plan.promoMonths} meses a{' '}
-                    <strong style={{ color: isDark ? '#F3EFE7' : '#121214' }}>
-                      ${(plan.promoPriceCents! / 100).toLocaleString('es-MX')}/mes
-                    </strong>
-                  </span>
-                )}
-              </div>
-
-              {/* CTA */}
-              <a
-                href={`/registro?plan=${plan.key}&interval=${interval}`}
-                style={{
-                  height: 54,
-                  borderRadius: 999,
-                  background: isDark ? '#6C47FF' : '#121214',
-                  color: isDark ? '#ffffff' : '#C6FF3D',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Probar {plan.trialDays > 0 ? `${plan.trialDays} días gratis` : 'ahora'}
-              </a>
-
-              {/* Divider */}
-              <div style={{ height: 1, background: isDark ? '#2A2A31' : '#F0EBE1' }} />
-
-              {/* Features */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                {(idx === 0
-                  ? [
-                      '1 sucursal',
-                      'Hasta 3 usuarios del equipo',
-                      'Pedidos ilimitados',
-                      'Pedidos programados',
-                      'Seguimiento en vivo y corte semanal',
-                    ]
-                  : [
-                      'Hasta 5 sucursales',
-                      'Hasta 10 usuarios del equipo',
-                      'Todo lo de Starter, ilimitado',
-                      'Analítica avanzada por sucursal y zona',
-                      'Acceso a la API para conectar tu punto de venta',
-                      'IA integrada para direcciones y horas pico',
-                    ]
-                ).map((f) => (
-                  <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke={isDark ? '#C6FF3D' : '#6C47FF'}
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{ marginTop: 3, flex: 'none' }}
-                    >
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                    <span style={{ fontSize: 16, lineHeight: '24px', color: isDark ? '#F3EFE7' : '#121214' }}>
-                      {f}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Flow steps */}
       <div
@@ -374,7 +412,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               color: '#121214',
               border: undefined,
               label: '3 días gratis',
-              desc: 'Pruebas con pedidos reales. Sin tarjeta al inicio.',
+              desc: 'Pruebas con pedidos reales. $0 hoy, cancela antes y no se cobra nada.',
             },
             {
               n: '2',

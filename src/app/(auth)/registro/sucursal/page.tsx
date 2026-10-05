@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/onboarding/PlacesAutocomplete';
 import { registerNegocioStep2Action } from '@/actions/onboarding';
@@ -30,6 +30,9 @@ const LABEL_STYLE: React.CSSProperties = {
 
 export default function RegistroSucursalPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planKey = searchParams.get('plan') ?? '';
+  const interval = searchParams.get('interval') ?? '';
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [place, setPlace] = useState<PlaceResult | null>(null);
@@ -91,6 +94,8 @@ export default function RegistroSucursalPage() {
         />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {planKey && <input type="hidden" name="_plan" value={planKey} />}
+          {interval && <input type="hidden" name="_interval" value={interval} />}
 
           {/* Dirección con Google Places */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -112,6 +117,10 @@ export default function RegistroSucursalPage() {
               name="referencia"
               type="text"
               placeholder="Ej. Entrada lateral, junto al estacionamiento"
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v.length === 1) e.target.value = v.toUpperCase();
+              }}
               style={INPUT_STYLE}
             />
           </div>
@@ -127,6 +136,13 @@ export default function RegistroSucursalPage() {
               name="phone"
               type="tel"
               placeholder="667 000 0000"
+              inputMode="numeric"
+              maxLength={10}
+              pattern="\d{10}"
+              title="Ingresa los 10 dígitos de tu teléfono sin espacios ni guiones"
+              onChange={(e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+              }}
               style={INPUT_STYLE}
             />
           </div>

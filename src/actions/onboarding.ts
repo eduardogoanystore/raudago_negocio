@@ -21,7 +21,7 @@ const SIGNUP_BUSINESS = `
     $first_name: String!
     $last_name: String!
     $business_name: String!
-    $phone: String
+    $phone: String!
   ) {
     signupBusiness(
       email: $email
@@ -37,24 +37,12 @@ const SIGNUP_BUSINESS = `
   }
 `;
 
-// TODO: Verificar que el backend exponga createBranch con estos campos.
-// Si la mutation no existe aún, este action guarda las cookies y redirige igualmente.
 const CREATE_BRANCH = `
-  mutation createBranch(
-    $business_id: String!
-    $name: String!
-    $address: String!
-    $city: String!
-    $phone: String
-  ) {
-    createBranch(
-      business_id: $business_id
-      name: $name
-      address: $address
-      city: $city
-      phone: $phone
-    ) {
+  mutation createBranch($input: CreateBranchInput!) {
+    createBranch(input: $input) {
       id
+      lat
+      lng
     }
   }
 `;
@@ -106,10 +94,14 @@ export async function registerNegocioStep1Action(
   const first_name = formData.get('owner_first_name') as string;
   const last_name = formData.get('owner_last_name') as string;
   const business_name = formData.get('business_name') as string;
-  const phone = (formData.get('phone') as string) || undefined;
+  const phone = (formData.get('phone') as string)?.trim();
 
   if (!email || !password || !first_name || !last_name || !business_name) {
     return { error: 'Todos los campos son requeridos' };
+  }
+
+  if (!phone || phone.length < 10) {
+    return { error: 'El teléfono es obligatorio (10 dígitos).' };
   }
 
   const client = new GraphQLClient(ENDPOINT);
@@ -171,6 +163,16 @@ export async function registerNegocioStep1Action(
     });
   }
 
+  if (user?.business_slug) {
+    cookieStore.set('business_slug', user.business_slug, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: new Date(Date.now() + SESSION_TTL_MS),
+      path: '/',
+    });
+  }
+
   cookieStore.set('onboarding_step', 'sucursal', {
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
@@ -179,7 +181,14 @@ export async function registerNegocioStep1Action(
     path: '/',
   });
 
-  return { redirectTo: '/registro/sucursal' };
+  const planKey = (formData.get('_plan') as string) || '';
+  const interval = (formData.get('_interval') as string) || '';
+  const qs = new URLSearchParams();
+  if (planKey) qs.set('plan', planKey);
+  if (interval) qs.set('interval', interval);
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+
+  return { redirectTo: `/registro/sucursal${suffix}` };
 }
 
 // ─── W2 — Sucursal ────────────────────────────────────────────────────────────
@@ -192,7 +201,7 @@ export async function registerNegocioStep2Action(
   const phone = (formData.get('phone') as string) || undefined;
   const lat = (formData.get('lat') as string) || undefined;
   const lng = (formData.get('lng') as string) || undefined;
-  const city = (formData.get('city') as string) || 'Culiacán';
+  const city = (formData.get('city') as string) || '';
 
   if (!address) {
     return { error: 'La dirección de recolección es requerida.' };
@@ -200,45 +209,32 @@ export async function registerNegocioStep2Action(
 
   const cookieStore = await cookies();
   const token = cookieStore.get('businessToken')?.value;
-  const business_id = cookieStore.get('business_id')?.value;
 
   if (!token) {
     redirect('/registro');
   }
 
-  // TODO: Descomentar cuando el backend exponga createBranch.
-  /*
   const client = new GraphQLClient(ENDPOINT, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  let branchId: string | undefined;
-  try {
-    const data = await client.request<{ createBranch: { id: string } }>(CREATE_BRANCH, {
-      business_id: business_id ?? '',
-      name: address.split(',')[0] ?? address, // usar primera parte de la dirección como nombre
-      address,
-      city,
-      phone,
-      referencia,
-      lat: lat ? parseFloat(lat) : undefined,
-      lng: lng ? parseFloat(lng) : undefined,
-    });
-    branchId = data.createBranch.id;
-  } catch (err: unknown) {
-    return { error: parseGqlError(err, 'Error al crear la sucursal. Intenta de nuevo.') };
-  }
+  const branchInput: Record<string, unknown> = {
+    name: 'Principal',
+    address,
+    city,
+    is_primary: true,
+  };
 
-  if (branchId) {
-    cookieStore.set('negocio_branch_id', branchId, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      expires: new Date(Date.now() + SESSION_TTL_MS),
-      path: '/',
-    });
+  if (lat) branchInput.lat = parseFloat(lat);
+  if (lng) branchInput.lng = parseFloat(lng);
+  if (phone) branchInput.phone = phone;
+  if (referencia) branchInput.referencia = referencia;
+
+  try {
+    await client.request(CREATE_BRANCH, { input: branchInput });
+  } catch (err: unknown) {
+    return { error: parseGqlError(err, 'Error al guardar la dirección. Intenta de nuevo.') };
   }
-  */
 
   cookieStore.set('onboarding_step', 'plan', {
     httpOnly: false,
@@ -248,7 +244,14 @@ export async function registerNegocioStep2Action(
     path: '/',
   });
 
-  return { redirectTo: '/registro/plan' };
+  const planKey = (formData.get('_plan') as string) || '';
+  const interval = (formData.get('_interval') as string) || '';
+  const qs = new URLSearchParams();
+  if (planKey) qs.set('plan', planKey);
+  if (interval) qs.set('interval', interval);
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+
+  return { redirectTo: `/registro/plan${suffix}` };
 }
 
 // ─── W3 — Checkout ────────────────────────────────────────────────────────────

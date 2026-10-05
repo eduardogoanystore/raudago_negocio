@@ -8,6 +8,10 @@ import { cacheSubscriptionStatus } from '@/actions/subscription';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
+// En producción las cookies deben funcionar en negocio.raudago.com y raudago.com → domain: .raudago.com
+// En desarrollo deben funcionar en negocio.localhost → domain: undefined (localhost no acepta dot-domain)
+const COOKIE_DOMAIN = process.env.NODE_ENV === 'production' ? '.raudago.com' : undefined;
+
 // AuthPayload devuelve { token: String!, user: JSON }
 // loginBusiness → user: { id, email, first_name, last_name }
 // signupBusiness → user: { id, email, first_name, last_name, business_id, business_slug }
@@ -108,19 +112,19 @@ export async function loginBusinessAction(
     sameSite: 'lax',
     expires: new Date(Date.now() + TOKEN_TTL_MS),
     path: '/',
+    ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
   });
 
-  // Persistir el account id para redirigir al NIP cuando el token expire
   if (user?.id) {
     cookieStore.set('business_account_id', user.id as string, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
+      ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
     });
   }
 
-  // Guardar business_id para que getServerClient() lo envíe en x-business-id
   if (user?.business_id) {
     cookieStore.set('business_id', user.business_id as string, {
       httpOnly: true,
@@ -128,15 +132,23 @@ export async function loginBusinessAction(
       sameSite: 'lax',
       expires: new Date(Date.now() + TOKEN_TTL_MS),
       path: '/',
+      ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
     });
   }
 
-  // Cachear estado de suscripción para evitar queries en cada navegación
   if (user?.business_id && user?.subscription_status) {
     await cacheSubscriptionStatus(user.business_id as string, user.subscription_status as string);
   }
 
   if (user?.business_slug) {
+    cookieStore.set('business_slug', user.business_slug as string, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      expires: new Date(Date.now() + TOKEN_TTL_MS),
+      ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
+    });
     redirect(`/${user.business_slug}/`);
   }
   redirect('/');
@@ -224,9 +236,9 @@ export async function signupBusinessAction(
     sameSite: 'lax',
     expires: new Date(Date.now() + TOKEN_TTL_MS),
     path: '/',
+    ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
   });
 
-  // signupBusiness devuelve business_id y business_slug → guardar id y redirect directo
   if (user?.business_id) {
     cookieStore.set('business_id', user.business_id, {
       httpOnly: true,
@@ -234,6 +246,7 @@ export async function signupBusinessAction(
       sameSite: 'lax',
       path: '/',
       expires: new Date(Date.now() + TOKEN_TTL_MS),
+      ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
     });
   }
 
@@ -269,6 +282,30 @@ export async function aceptarDocumentosLegalesAction(
   } catch (err: unknown) {
     const gqlErr = err as { response?: { errors?: { message: string }[] } };
     return { error: gqlErr?.response?.errors?.[0]?.message ?? 'Error al registrar aceptación' };
+  }
+}
+
+const RESEND_VERIFICATION = `
+  mutation resendVerificationEmail {
+    resendVerificationEmail
+  }
+`;
+
+export async function resendVerificationEmailAction(): Promise<{ error?: string }> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('businessToken')?.value;
+  if (!token) return { error: 'No autenticado' };
+
+  const client = new GraphQLClient(ENDPOINT, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  try {
+    await client.request(RESEND_VERIFICATION);
+    return {};
+  } catch (err: unknown) {
+    const gqlErr = err as { response?: { errors?: { message: string }[] } };
+    return { error: gqlErr?.response?.errors?.[0]?.message ?? 'Error al reenviar el correo' };
   }
 }
 

@@ -17,7 +17,6 @@ export default async function ExitoPage({
 
   const cookieStore = await cookies();
   const businessId = cookieStore.get('business_id')?.value ?? '';
-
   const subscription = await getMySubscription();
   const isActive = subscription && ['ACTIVE', 'TRIALING'].includes(subscription.status);
 
@@ -88,10 +87,27 @@ export default async function ExitoPage({
             </p>
             {subscription.status === 'TRIALING' && (
               <p style={{ color: '#059669', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                Estas en tu periodo de prueba gratuito.
+                Estás en tu periodo de prueba gratuito — $0 por ahora.
               </p>
             )}
-            <div style={{ marginTop: '2rem' }}>
+
+            {/* Tip: segunda sucursal */}
+            <div
+              style={{
+                background: '#F1EDFF',
+                borderRadius: 12,
+                padding: '14px 16px',
+                marginTop: '1.25rem',
+                textAlign: 'left',
+              }}
+            >
+              <p style={{ fontSize: 13, color: '#4B2FD6', margin: 0, lineHeight: 1.5 }}>
+                <strong>Tu plan incluye hasta 2 sucursales.</strong> Puedes agregar la segunda
+                desde <em>Perfil del negocio</em> en el panel, cuando lo necesites.
+              </p>
+            </div>
+
+            <div style={{ marginTop: '1.5rem' }}>
               <Link
                 href="/"
                 style={{
@@ -102,9 +118,10 @@ export default async function ExitoPage({
                   borderRadius: '0.75rem',
                   fontWeight: 700,
                   fontSize: '1rem',
+                  textDecoration: 'none',
                 }}
               >
-                Ir al inicio
+                Ir al panel →
               </Link>
             </div>
           </div>

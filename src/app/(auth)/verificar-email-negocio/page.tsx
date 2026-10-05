@@ -1,8 +1,9 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { GraphQLClient } from 'graphql-request';
+import { resendVerificationEmailAction } from '@/actions/auth';
 
 const ENDPOINT =
   process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
@@ -157,6 +158,17 @@ function VerificarEmailContent() {
 
   const [state, setState] = useState<VerifyState>(token ? 'loading' : 'no_token');
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [panelHref, setPanelHref] = useState<string>('/');
+  const [resendSent, setResendSent] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)business_slug=([^;]+)/);
+    if (match) {
+      const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? '';
+      setPanelHref(`${portalUrl}/${match[1]}/`);
+    }
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -221,23 +233,50 @@ function VerificarEmailContent() {
             <p style={bodyStyle}>
               Tu cuenta está activa. Ya puedes iniciar sesión y empezar a usar RaudaGo.
             </p>
-            <a href="/login" style={primaryBtnStyle}>
-              Ir al login
+            <a href={panelHref} style={primaryBtnStyle}>
+              Ir a mi panel
             </a>
           </>
         )}
 
-        {(state === 'error' || state === 'no_token') && (
+        {state === 'no_token' && (
+          <>
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style={{ display: 'block', margin: '0 auto 1.25rem' }}>
+              <circle cx="28" cy="28" r="28" fill="#6C47FF" fillOpacity="0.08" />
+              <path d="M14 20h28v18H14z" stroke="#6C47FF" strokeWidth="2" strokeLinejoin="round" fill="none" />
+              <path d="M14 20l14 11 14-11" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <h1 style={headingStyle}>Verifica tu correo</h1>
+            <p style={bodyStyle}>
+              Te enviamos un enlace de verificación. Revisa tu bandeja de entrada y la carpeta de spam.
+            </p>
+            {resendSent ? (
+              <p style={{ fontSize: '0.9rem', color: '#6C47FF', fontWeight: 600 }}>
+                Correo reenviado. Revisa tu bandeja.
+              </p>
+            ) : (
+              <button
+                onClick={() => startTransition(async () => { await resendVerificationEmailAction(); setResendSent(true); })}
+                disabled={isPending}
+                style={{
+                  ...primaryBtnStyle,
+                  background: isPending ? '#A08EFF' : '#6C47FF',
+                  cursor: isPending ? 'default' : 'pointer',
+                  border: 'none',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {isPending ? 'Enviando...' : 'Reenviar correo'}
+              </button>
+            )}
+          </>
+        )}
+
+        {state === 'error' && (
           <>
             <ErrorIcon />
-            <h1 style={{ ...headingStyle, color: '#B00020' }}>
-              {state === 'no_token' ? 'Enlace no válido' : 'No pudimos verificar tu correo'}
-            </h1>
-            <p style={bodyStyle}>
-              {state === 'no_token'
-                ? 'El link que usaste no contiene un token de verificación. Revisa el correo que te enviamos.'
-                : errorMsg}
-            </p>
+            <h1 style={{ ...headingStyle, color: '#B00020' }}>No pudimos verificar tu correo</h1>
+            <p style={bodyStyle}>{errorMsg}</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href="/registro" style={ghostBtnStyle}>
                 Volver al registro
