@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { Suspense, useState, useTransition, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { PlacesAutocomplete, type PlaceResult } from '@/components/onboarding/PlacesAutocomplete';
@@ -28,7 +28,7 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: 8,
 };
 
-export default function RegistroSucursalPage() {
+function RegistroSucursalContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planKey = searchParams.get('plan') ?? '';
@@ -189,5 +189,13 @@ export default function RegistroSucursalPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function RegistroSucursalPage() {
+  return (
+    <Suspense>
+      <RegistroSucursalContent />
+    </Suspense>
   );
 }

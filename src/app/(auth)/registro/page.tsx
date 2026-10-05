@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { Suspense, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { registerNegocioStep1Action } from '@/actions/onboarding';
@@ -82,7 +82,7 @@ function CapitalizedInput({ name, placeholder }: { name: string; placeholder?: s
   );
 }
 
-export default function RegistroW1Page() {
+function RegistroW1Content() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planKey = searchParams.get('plan') ?? '';
@@ -336,5 +336,13 @@ export default function RegistroW1Page() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function RegistroW1Page() {
+  return (
+    <Suspense>
+      <RegistroW1Content />
+    </Suspense>
   );
 }
