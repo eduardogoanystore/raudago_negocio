@@ -5,7 +5,7 @@ export default function NegocioLayout({ children }: { children: React.ReactNode 
     <>
       {children}
       <Script
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY}`}
       />
     </>
