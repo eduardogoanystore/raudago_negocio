@@ -384,6 +384,11 @@ export function NuevoPedidoForm({ negocio_slug, tiers, originLat, originLng, bra
                     type="text"
                     required
                     placeholder="Nombre completo"
+                    autoCapitalize="words"
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      e.target.value = v.replace(/\b\w/g, (c) => c.toUpperCase());
+                    }}
                     style={INPUT_STYLE}
                   />
                 </div>
