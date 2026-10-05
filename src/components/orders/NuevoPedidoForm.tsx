@@ -397,6 +397,13 @@ export function NuevoPedidoForm({ negocio_slug, tiers, originLat, originLng, bra
                     type="tel"
                     required
                     placeholder="667 000 0000"
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="\d{10}"
+                    title="Ingresa los 10 dígitos del teléfono sin espacios ni guiones"
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    }}
                     style={INPUT_STYLE}
                   />
                 </div>
