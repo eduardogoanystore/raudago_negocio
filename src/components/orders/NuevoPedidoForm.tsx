@@ -209,6 +209,7 @@ export function NuevoPedidoForm({ negocio_slug, tiers, originLat, originLng, bra
     if (!place?.lat || !place?.lng || !originLat || !originLng) return;
     setDistanceLoading(true);
     calcDrivingDistanceAction(originLat, originLng, place.lat, place.lng).then((result) => {
+      console.log('[distancia]', result);
       if ('km' in result) setDistanceKm(String(result.km));
       setDistanceLoading(false);
     });
@@ -569,28 +570,20 @@ export function NuevoPedidoForm({ negocio_slug, tiers, originLat, originLng, bra
 
             {/* Distance field */}
             <div>
-              <label htmlFor="distance_km" style={LABEL_STYLE}>
+              <input type="hidden" name="distance_km" form="nuevo-pedido-form" value={distanceKm} />
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#121214', marginBottom: 8 }}>
                 Distancia (km)
-              </label>
-              <input
-                id="distance_km"
-                name="distance_km"
-                type="number"
-                required
-                min="0.1"
-                step="0.1"
-                placeholder={distanceLoading ? 'Calculando…' : 'ej. 3.5'}
-                form="nuevo-pedido-form"
-                value={distanceKm}
-                onChange={(e) => setDistanceKm(e.target.value)}
-                disabled={distanceLoading}
-                style={{ ...INPUT_STYLE, opacity: distanceLoading ? 0.6 : 1 }}
-              />
-              {originLat && originLng && place && !distanceLoading && distanceKm && (
-                <p style={{ fontSize: 12, color: '#57544f', marginTop: 4 }}>
-                  Ruta calculada · puedes ajustarlo manualmente
-                </p>
-              )}
+              </p>
+              <div style={{
+                ...INPUT_STYLE,
+                display: 'flex',
+                alignItems: 'center',
+                color: distanceKm ? '#121214' : '#9B9590',
+                background: '#F3EFE7',
+                border: '1.5px solid #F0EBE1',
+              }}>
+                {distanceLoading ? 'Calculando…' : distanceKm ? `${distanceKm} km` : '—'}
+              </div>
               {!originLat && (
                 <p style={{ fontSize: 12, color: '#9B9590', marginTop: 4 }}>
                   Agrega coordenadas a tu sucursal para cálculo automático
