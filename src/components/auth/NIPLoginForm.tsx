@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { loginWithPIN } from '@/actions/pin';
+import { logoutBusinessAction } from '@/actions/auth';
 
 export function NIPLoginForm() {
   const searchParams = useSearchParams();
@@ -106,12 +107,20 @@ export function NIPLoginForm() {
         )}
       </div>
 
-      <a
-        href="/login"
-        style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}
+      <button
+        onClick={() => logoutBusinessAction()}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--color-muted)',
+          fontSize: '0.85rem',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          padding: 0,
+        }}
       >
-        Usar contrasena en su lugar
-      </a>
+        Usar contraseña en su lugar
+      </button>
     </div>
   );
 }
