@@ -411,7 +411,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               bg: '#C6FF3D',
               color: '#121214',
               border: undefined,
-              label: '3 días gratis',
+              label: '7 días gratis',
               desc: 'Pruebas con pedidos reales. $0 hoy, cancela antes y no se cobra nada.',
             },
             {
