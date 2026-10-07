@@ -330,7 +330,7 @@ export default async function LandingPage() {
                 letterSpacing: '.04em',
               }}
             >
-              7 días gratis · Promo: $220/semana por 5 semanas
+              7 días gratis · Promo: $220/semana por 4 semanas
             </span>
           </div>
 
