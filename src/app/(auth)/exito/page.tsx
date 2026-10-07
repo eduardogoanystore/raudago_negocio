@@ -163,10 +163,10 @@ export default async function NegocioExitoPage() {
           />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#121214' }}>
-              Trial activo · 3 días gratis
+              Trial activo · 7 días gratis
             </span>
             <span style={{ fontSize: 13, color: '#57544f' }}>
-              Primer cobro el {trialEndLabel} · <strong style={{ color: '#121214' }}>$20/mes por 3 meses</strong> · cancela cuando quieras
+              Primer cobro el {trialEndLabel} · <strong style={{ color: '#121214' }}>$220/semana por 5 semanas</strong> · cancela cuando quieras
             </span>
           </div>
         </div>
