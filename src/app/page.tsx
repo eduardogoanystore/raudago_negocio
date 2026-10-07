@@ -305,7 +305,7 @@ export default async function LandingPage() {
                 whiteSpace: 'nowrap',
               }}
             >
-              Probar 3 días gratis
+              Probar 7 días gratis
             </a>
           </div>
         </div>
@@ -330,7 +330,7 @@ export default async function LandingPage() {
                 letterSpacing: '.04em',
               }}
             >
-              3 días gratis · Promo: 3 meses a $20/mes
+              7 días gratis · Promo: $220/semana por 5 semanas
             </span>
           </div>
 
@@ -382,7 +382,7 @@ export default async function LandingPage() {
           </div>
 
           <p style={{ fontSize: 14, color: '#57544f' }}>
-            3 días gratis · Sin contrato · Cancelas cuando quieras
+            7 días gratis · Sin contrato · Cancelas cuando quieras
           </p>
         </div>
 
