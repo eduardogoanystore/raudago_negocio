@@ -419,8 +419,8 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               bg: '#6C47FF',
               color: '#fff',
               border: undefined,
-              label: '3 meses a $20/mes',
-              desc: 'Precio de lanzamiento, en cualquier plan e intervalo.',
+              label: '5 semanas a $220/semana',
+              desc: 'Precio de lanzamiento, 45% de descuento durante 5 semanas.',
             },
             {
               n: '3',

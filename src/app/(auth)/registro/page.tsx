@@ -151,7 +151,7 @@ function RegistroW1Content() {
         <OnboardingHeader
           step={1}
           title="Registra tu negocio"
-          subtitle="3 días gratis · $0 hoy · luego $20/mes por 3 meses · cancela cuando quieras"
+          subtitle="3 días gratis · $0 hoy · luego $220/semana por 5 semanas · cancela cuando quieras"
         />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

@@ -126,8 +126,8 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
           {/* Promo banner */}
           <div style={{ background: '#C6FF3D', borderRadius: 14, padding: '12px 18px', fontSize: 15 }}>
             <strong>3 días gratis</strong>, luego{' '}
-            <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>$20/mes</strong>{' '}
-            los primeros 3 meses. Después, el precio normal que elijas aquí.
+            <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>$220/semana</strong>{' '}
+            las primeras 5 semanas. Después, el precio normal que elijas aquí.
           </div>
 
           {/* Plan cards */}
