@@ -106,9 +106,9 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
             <span style={{ fontSize: 16, color: '#121214' }}>
               Primeros <strong>{promoPlan.trialDays} días gratis</strong>, luego{' '}
               <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>
-                ${(promoPlan.promoPriceCents! / 100).toLocaleString('es-MX')} MXN/mes
+                ${(promoPlan.promoPriceCents! / 100).toLocaleString('es-MX')} MXN/semana
               </strong>{' '}
-              por los primeros {promoPlan.promoMonths} meses en cualquier plan
+              las primeras {promoPlan.promoMonths} semanas en cualquier plan
             </span>
           </div>
         )}
@@ -330,9 +330,9 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                   <span style={{ fontSize: 15, color: '#57544f' }}>{note}</span>
                   {hasPromo && (
                     <span style={{ fontSize: 14, color: '#57544f' }}>
-                      Primeros {plan.promoMonths} meses a{' '}
+                      Primeras {plan.promoMonths} semanas a{' '}
                       <strong style={{ color: '#121214' }}>
-                        ${(plan.promoPriceCents! / 100).toLocaleString('es-MX')}/mes
+                        ${(plan.promoPriceCents! / 100).toLocaleString('es-MX')}/semana
                       </strong>
                     </span>
                   )}
