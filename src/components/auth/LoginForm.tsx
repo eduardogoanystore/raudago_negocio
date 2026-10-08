@@ -33,11 +33,15 @@ export function LoginForm({ siteKey }: { siteKey: string }) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setPending(true);
     setError(null);
 
     // Guardamos el formulario antes de la pausa asíncrona
     const formElement = e.currentTarget;
+
+    // Validación manual — muestra los mensajes nativos del browser
+    if (!formElement.reportValidity()) return;
+
+    setPending(true);
 
     try {
       const token = await getCaptcha(siteKey);
