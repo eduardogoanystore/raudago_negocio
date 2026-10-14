@@ -21,6 +21,7 @@ function checkRateLimit(ip: string): boolean {
 // ─── Mapeo ref → Canal de origen ─────────────────────────────────────────────
 const REF_MAP: [string[], string][] = [
   [['estado-whatsapp'], 'Estado de WhatsApp'],
+  [['whatsapp'], 'WhatsApp'],
   [['volante', 'puerta', 'visita'], 'Venta directa'],
   [['referido'], 'Referido'],
   [['grupo'], 'Grupos FB/WhatsApp'],
