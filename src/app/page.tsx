@@ -138,11 +138,17 @@ export default async function LandingPage() {
           line-height: 1.1;
           margin-bottom: 16px;
         }
-        #rg-plan-cards {
+        [data-plans-grid] {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-          margin-bottom: 24px;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+          align-items: stretch;
+        }
+        @media (max-width: 860px) {
+          [data-plans-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+        @media (max-width: 520px) {
+          [data-plans-grid] { grid-template-columns: minmax(0, 1fr) !important; }
         }
         #rg-plan-flow {
           display: grid;
@@ -238,9 +244,6 @@ export default async function LandingPage() {
           #rg-plans-title {
             font-size: clamp(28px, 7.5vw, 36px);
           }
-          #rg-plan-cards {
-            grid-template-columns: 1fr;
-          }
           #rg-plan-flow {
             grid-template-columns: 1fr 1fr;
             gap: 20px;
@@ -305,7 +308,7 @@ export default async function LandingPage() {
                 whiteSpace: 'nowrap',
               }}
             >
-              Probar 7 días gratis
+              Empezar gratis
             </a>
           </div>
         </div>

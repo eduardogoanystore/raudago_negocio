@@ -183,7 +183,15 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
       {/* Plan cards */}
       {sorted.length > 0 && (
-        <div id="rg-plan-cards">
+        <div
+          data-plans-grid=""
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 14,
+            alignItems: 'stretch',
+          }}
+        >
           {sorted.map((plan) => {
             const isCadenas = plan.key === 'cadenas';
             const price = planPrice(plan, interval);
@@ -197,7 +205,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                   style={{
                     background: '#121214',
                     borderRadius: 22,
-                    padding: 30,
+                    padding: 20,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 20,
@@ -253,7 +261,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                       borderRadius: 999,
                       background: '#C6FF3D',
                       color: '#121214',
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: 700,
                       display: 'flex',
                       alignItems: 'center',
@@ -262,7 +270,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    Probar {plan.trialDays > 0 ? `${plan.trialDays} días gratis` : 'ahora'}
+                    Empezar gratis
                   </a>
 
                   <div style={{ height: 1, background: '#2A2A31' }} />
@@ -294,7 +302,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                   background: '#FFFDFA',
                   border: '1px solid #DED7C9',
                   borderRadius: 22,
-                  padding: 30,
+                  padding: 20,
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 20,
@@ -345,7 +353,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                     borderRadius: 999,
                     background: '#121214',
                     color: '#C6FF3D',
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
@@ -354,7 +362,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Probar {plan.trialDays > 0 ? `${plan.trialDays} días gratis` : 'ahora'}
+                  Empezar gratis
                 </a>
 
                 <div style={{ height: 1, background: '#F0EBE1' }} />
