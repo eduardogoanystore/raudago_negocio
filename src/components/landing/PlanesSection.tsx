@@ -108,11 +108,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
             }}
           >
             <span style={{ fontSize: 16, color: '#121214' }}>
-              Primeros <strong>{promoPlan.trialDays} días gratis</strong>, luego{' '}
-              <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>
-                ${(promoPlan.promoPriceCents! / 100).toLocaleString('es-MX')} MXN/semana
-              </strong>{' '}
-              las primeras {promoPlan.promoMonths * 4} semanas en cualquier plan
+              Básico y Starter: <strong>{promoPlan.trialDays} días gratis</strong>, luego precio de promo las primeras <strong>{promoPlan.promoMonths * 4} semanas</strong>
             </span>
           </div>
         )}
