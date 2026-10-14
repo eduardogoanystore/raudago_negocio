@@ -162,7 +162,10 @@ export function AccesoForm({ ref_ }: AccesoFormProps) {
           type="text"
           placeholder="Ej. Taquería El Gordo"
           value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          onChange={(e) => {
+              const v = e.target.value;
+              setNombre(v ? v[0].toUpperCase() + v.slice(1) : v);
+            }}
           onBlur={() => touch('nombre')}
           maxLength={120}
           style={inputStyle}
