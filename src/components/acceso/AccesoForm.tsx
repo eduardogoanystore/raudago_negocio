@@ -271,7 +271,7 @@ export function AccesoForm({ ref_ }: AccesoFormProps) {
           type="text"
           placeholder="Ej. Comida, farmacia, ropa, floristería…"
           value={giro}
-          onChange={(e) => setGiro(e.target.value)}
+          onChange={(e) => { const v = e.target.value; setGiro(v ? v[0].toUpperCase() + v.slice(1) : v); }}
           onBlur={() => touch('giro')}
           maxLength={120}
           style={inputStyle}
