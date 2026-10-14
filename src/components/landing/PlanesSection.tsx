@@ -55,6 +55,22 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
   const sorted = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
   const promoPlan = sorted.find((p) => p.promoMonths > 0 && p.promoPriceCents != null);
 
+  // Planes con promo (para el banner y el paso 2)
+  const promoPlans = sorted.filter((p) => p.promoMonths > 0 && p.promoPriceCents != null && !p.isFree);
+
+  // Plan con precios mensual/anual para calcular descuentos del paso 3
+  const pricedPlan = sorted.find((p) => p.priceMonthlyCents > 0 && p.priceWeeklyCents > 0 && !p.isFree && p.key !== 'cadenas');
+  const monthlyDiscount = pricedPlan
+    ? Math.round((1 - pricedPlan.priceMonthlyCents / (pricedPlan.priceWeeklyCents * 4)) * 100)
+    : 5;
+  const annualDiscount = pricedPlan
+    ? Math.round((1 - pricedPlan.priceAnnualCents / (pricedPlan.priceWeeklyCents * 52)) * 100)
+    : 25;
+
+  // Días de prueba (del primer plan con trial)
+  const trialDays = promoPlans[0]?.trialDays ?? 7;
+  const promoWeeks = promoPlans[0] ? promoPlans[0].promoMonths * 4 : 4;
+
   return (
     <section
       id="planes"
@@ -426,7 +442,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               bg: '#C6FF3D',
               color: '#121214',
               border: undefined,
-              label: '7 días gratis',
+              label: `${trialDays} días gratis`,
               desc: 'Pruebas con pedidos reales. $0 hoy, cancela antes y no se cobra nada.',
             },
             {
@@ -434,8 +450,13 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               bg: '#6C47FF',
               color: '#fff',
               border: undefined,
-              label: '4 semanas a $220/semana',
-              desc: 'Precio de lanzamiento, 45% de descuento durante 4 semanas.',
+              label: `${promoWeeks} semanas a precio de promo`,
+              desc: promoPlans.length > 0
+                ? promoPlans.map((p) => {
+                    const pct = Math.round((1 - p.promoPriceCents! / p.priceWeeklyCents) * 100);
+                    return `${p.name}: $${(p.promoPriceCents! / 100).toLocaleString('es-MX')}/sem (−${pct}%)`;
+                  }).join(' · ')
+                : 'Precio de promo durante las primeras semanas.',
             },
             {
               n: '3',
@@ -443,7 +464,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               color: '#C6FF3D',
               border: undefined,
               label: 'Precio normal',
-              desc: 'Semanal, mensual (−5%) o anual (−25%). Cambias cuando quieras.',
+              desc: `Semanal, mensual (−${monthlyDiscount}%) o anual (−${annualDiscount}%). Cambias cuando quieras.`,
             },
             {
               n: '4',
