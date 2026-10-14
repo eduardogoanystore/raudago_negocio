@@ -44,9 +44,7 @@ export function NIPLoginForm() {
       minHeight: '100vh',
       background: 'var(--color-background)',
     }}>
-      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>
-        Rauda<span style={{ color: 'var(--color-foreground)' }}>Go</span>
-      </div>
+      <img src="/logo-full.svg" alt="RaudaGo" style={{ height: 36, width: 'auto' }} />
 
       <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Ingresa tu NIP</h1>
 

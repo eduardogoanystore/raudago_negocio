@@ -1,5 +1,6 @@
 import { getServerClient, publicClient } from '@/graphql/client';
 import { NuevoPedidoForm, TariffTier } from '@/components/orders/NuevoPedidoForm';
+import Link from 'next/link';
 
 const TARIFF_TIERS_QUERY = `
   query tariffTiers {
@@ -23,6 +24,12 @@ const MY_BUSINESS_COORDS_QUERY = `
         is_primary
       }
     }
+    myOrderUsage {
+      used
+      limit
+      isFree
+      gracePeriodEndsAt
+    }
   }
 `;
 
@@ -44,10 +51,12 @@ export default async function NuevoPedidoPage({
   let originLat: number | null = null;
   let originLng: number | null = null;
   let branchId: string | null = null;
+  let orderUsage: { used: number; limit: number | null; isFree: boolean; gracePeriodEndsAt: string | null } | null = null;
   try {
     const client = await getServerClient();
     const data = await client.request<{
       myBusiness: { branches: { id: string; lat: number | null; lng: number | null; is_primary: boolean }[] };
+      myOrderUsage: { used: number; limit: number | null; isFree: boolean; gracePeriodEndsAt: string | null } | null;
     }>(MY_BUSINESS_COORDS_QUERY);
     const branches = data.myBusiness?.branches ?? [];
     const primary = branches.find((b) => b.is_primary) ?? branches[0] ?? null;
@@ -58,9 +67,12 @@ export default async function NuevoPedidoPage({
         originLng = Number(primary.lng);
       }
     }
+    orderUsage = data.myOrderUsage ?? null;
   } catch (err) {
     console.error('[nuevo-pedido] branches error:', err);
   }
+
+  const atLimit = orderUsage?.limit != null && orderUsage.used >= orderUsage.limit && !orderUsage.gracePeriodEndsAt;
 
   return (
     <div>
@@ -81,6 +93,42 @@ export default async function NuevoPedidoPage({
           </p>
         </div>
       </div>
+      {atLimit && (
+        <div style={{
+          background: '#FEF2F2',
+          border: '1px solid #FECACA',
+          borderRadius: 12,
+          padding: '16px 20px',
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}>
+          <span style={{ fontSize: 22 }}>🚫</span>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#B91C1C', display: 'block' }}>
+              Límite semanal alcanzado ({orderUsage!.used}/{orderUsage!.limit} pedidos)
+            </span>
+            <span style={{ fontSize: 13, color: '#B91C1C', marginTop: 2, display: 'block' }}>
+              No puedes crear más pedidos esta semana con el plan Arranque. Actualiza tu plan para continuar.
+            </span>
+          </div>
+          <Link href={`/${negocio_slug}/facturacion`} style={{
+            flexShrink: 0,
+            background: '#B91C1C',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 13,
+            padding: '8px 16px',
+            borderRadius: 999,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}>
+            Actualizar plan
+          </Link>
+        </div>
+      )}
+
       <NuevoPedidoForm
         negocio_slug={negocio_slug}
         tiers={tiers}

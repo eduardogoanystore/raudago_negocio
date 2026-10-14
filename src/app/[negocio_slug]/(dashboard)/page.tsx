@@ -6,6 +6,12 @@ const ACTIVE_STATUSES = new Set(['created', 'pending_driver', 'accepted', 'picke
 
 const MY_ORDERS_QUERY = gql`
   query MyOrdersDashboard($filters: OrderFilters) {
+    myOrderUsage {
+      used
+      limit
+      isFree
+      gracePeriodEndsAt
+    }
     myOrders(filters: $filters) {
       id
       order_number
@@ -26,6 +32,13 @@ const MY_ORDERS_QUERY = gql`
     }
   }
 `;
+
+interface OrderUsage {
+  used: number;
+  limit: number | null;
+  isFree: boolean;
+  gracePeriodEndsAt: string | null;
+}
 
 interface DriverProfile {
   driver_account?: {
@@ -103,17 +116,18 @@ export default async function NegocioDashboard({
   const { negocio_slug } = await params;
 
   let orders: DeliveryOrder[] = [];
+  let orderUsage: OrderUsage | null = null;
   let fetchError = false;
 
   try {
     const client = await getServerClient();
-    const data = await client.request<{ myOrders: DeliveryOrder[] }>(MY_ORDERS_QUERY, {
+    const data = await client.request<{ myOrders: DeliveryOrder[]; myOrderUsage: OrderUsage | null }>(MY_ORDERS_QUERY, {
       filters: { limit: 100 },
     });
     orders = data.myOrders ?? [];
+    orderUsage = data.myOrderUsage ?? null;
   } catch (err) {
     console.error('[Dashboard] myOrders error:', err);
-    debugger;
     fetchError = true;
   }
 
@@ -207,6 +221,128 @@ export default async function NegocioDashboard({
           </Link>
         </div>
       </div>
+
+      {/* Order limit banners */}
+      {orderUsage && orderUsage.limit !== null && (() => {
+        const { used, limit, gracePeriodEndsAt } = orderUsage;
+        const pct = limit > 0 ? used / limit : 0;
+        const upgradeHref = `/${negocio_slug}/facturacion`;
+
+        if (gracePeriodEndsAt) {
+          // Grace period active — limit exceeded but still operational
+          const endsAt = new Date(gracePeriodEndsAt);
+          const daysLeft = Math.max(0, Math.ceil((endsAt.getTime() - Date.now()) / 86400000));
+          return (
+            <div style={{
+              background: '#FFFBEB',
+              border: '1px solid #F59E0B',
+              borderRadius: 12,
+              padding: '14px 18px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+            }}>
+              <span style={{ fontSize: 20 }}>⏳</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#92400E' }}>
+                  Alcanzaste tu límite semanal ({used}/{limit} pedidos)
+                </span>
+                <span style={{ display: 'block', fontSize: 13, color: '#92400E', marginTop: 2 }}>
+                  Tienes {daysLeft} día{daysLeft !== 1 ? 's' : ''} de gracia restantes. Actualiza tu plan para evitar la suspensión.
+                </span>
+              </div>
+              <Link href={upgradeHref} style={{
+                flexShrink: 0,
+                background: '#F59E0B',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 13,
+                padding: '8px 16px',
+                borderRadius: 999,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}>
+                Actualizar plan
+              </Link>
+            </div>
+          );
+        }
+
+        if (pct >= 1) {
+          // At or over limit — no grace period
+          return (
+            <div style={{
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: 12,
+              padding: '14px 18px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+            }}>
+              <span style={{ fontSize: 20 }}>🚫</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#B91C1C' }}>
+                  Límite semanal alcanzado ({used}/{limit} pedidos)
+                </span>
+                <span style={{ display: 'block', fontSize: 13, color: '#B91C1C', marginTop: 2 }}>
+                  No puedes crear más pedidos esta semana. Actualiza tu plan para continuar sin interrupciones.
+                </span>
+              </div>
+              <Link href={upgradeHref} style={{
+                flexShrink: 0,
+                background: '#B91C1C',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 13,
+                padding: '8px 16px',
+                borderRadius: 999,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}>
+                Actualizar plan
+              </Link>
+            </div>
+          );
+        }
+
+        if (pct >= 0.8) {
+          // 80–99% — early warning
+          return (
+            <div style={{
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: 12,
+              padding: '12px 18px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+            }}>
+              <span style={{ fontSize: 18 }}>⚠️</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#92400E' }}>
+                  Estás al {Math.round(pct * 100)}% de tu límite semanal — {used} de {limit} pedidos usados.
+                </span>
+              </div>
+              <Link href={upgradeHref} style={{
+                flexShrink: 0,
+                color: '#92400E',
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: 'underline',
+                whiteSpace: 'nowrap',
+              }}>
+                Ver planes
+              </Link>
+            </div>
+          );
+        }
+
+        return null;
+      })()}
 
       {fetchError && (
         <div style={{
