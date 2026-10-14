@@ -102,7 +102,7 @@ export default async function AccesoPage({ searchParams }: Props) {
             marginBottom: 20,
           }}
         >
-          Automatiza tus entregas en Mazatlán
+          Automatiza tus entregas
         </h1>
 
         <p style={{ fontSize: 18, color: '#57544f', lineHeight: 1.7, marginBottom: 0 }}>
