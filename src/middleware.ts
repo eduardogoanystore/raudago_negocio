@@ -56,6 +56,7 @@ const PORTAL_AUTH_FREE = [
   '/planes',
   '/verificar-email',
   '/verificar-email-negocio',
+  '/acceso',
 ];
 
 function isPortalAuthFree(pathname: string): boolean {
@@ -67,7 +68,7 @@ const RESERVED_SLUGS = new Set([
   'login', 'login-nip', 'registro', 'aceptar-invitacion', 'exito',
   'planes', 'verificar-email', 'verificar-email-negocio', 'repartidores',
   'terminos', 'privacidad', 'cancelacion', 'codigo-conducta',
-  'politicas-internas', 'api', '_next',
+  'politicas-internas', 'acceso', 'api', '_next',
 ]);
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
