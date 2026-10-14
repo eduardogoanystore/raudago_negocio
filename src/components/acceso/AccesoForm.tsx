@@ -362,7 +362,7 @@ export function AccesoForm({ ref_ }: AccesoFormProps) {
         <textarea
           placeholder="Grupo de WhatsApp, repartidores propios, aplicación, a pie…"
           value={comoEntrega}
-          onChange={(e) => setComoEntrega(e.target.value)}
+          onChange={(e) => { const v = e.target.value; setComoEntrega(v ? v[0].toUpperCase() + v.slice(1) : v); }}
           maxLength={500}
           rows={3}
           style={{
