@@ -68,7 +68,7 @@ export function AccesoForm({ ref_ }: AccesoFormProps) {
   // ── Success screen ────────────────────────────────────────────────────────
   if (done) {
     const shareText = encodeURIComponent(
-      '¡Regístrate en RaudaGo para automatizar tus entregas en Culiacán! Es gratis para empezar 👇\nhttps://negocio.raudago.com/acceso?ref=referido-registro'
+      '¡Regístrate en RaudaGo para automatizar tus entregas en Culiacán! Es gratis para empezar 👇\nhttps://negocio.raudago.com/acceso?ref=referido'
     );
     const shareUrl = `https://wa.me/?text=${shareText}`;
     const contactUrl = 'https://wa.me/526672277437?text=' + encodeURIComponent('Hola, me registré en la lista de espera de RaudaGo y quiero saber más.');
