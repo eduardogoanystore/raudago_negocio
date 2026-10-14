@@ -327,7 +327,7 @@ export function AccesoForm({ ref_ }: AccesoFormProps) {
           type="text"
           placeholder="Ej. Las Quintas, Centro, Chapultepec…"
           value={zona}
-          onChange={(e) => setZona(e.target.value)}
+          onChange={(e) => { const v = e.target.value; setZona(v ? v[0].toUpperCase() + v.slice(1) : v); }}
           onBlur={() => touch('zona')}
           maxLength={120}
           style={inputStyle}
