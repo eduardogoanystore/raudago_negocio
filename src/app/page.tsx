@@ -15,6 +15,10 @@ const SUBSCRIPTION_PLANS_QUERY = `
       trialDays
       promoMonths
       sortOrder
+      isFree
+      maxBranches
+      maxMembers
+      maxOrdersWeekly
     }
   }
 `;

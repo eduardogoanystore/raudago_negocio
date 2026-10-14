@@ -15,6 +15,10 @@ export interface SubscriptionPlan {
   trialDays: number;
   promoMonths: number;
   sortOrder: number;
+  isFree: boolean;
+  maxBranches: number | null;
+  maxMembers: number | null;
+  maxOrdersWeekly: number | null;
 }
 
 type Interval = 'WEEK' | 'MONTH' | 'YEAR';
@@ -240,7 +244,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                       {plan.name}
                     </div>
                     <div style={{ fontSize: 15, color: '#8E8B93' }}>
-                      Una sola suscripción para todas tus sucursales.
+                      {plan.maxBranches != null ? `Hasta ${plan.maxBranches} sucursales` : 'Sucursales sin tope'}, una sola suscripción.
                     </div>
                   </div>
 
@@ -277,8 +281,8 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
                     {[
-                      'Sucursales sin tope',
-                      'Usuarios según tu operación',
+                      plan.maxBranches != null ? `Hasta ${plan.maxBranches} sucursales` : 'Sucursales sin tope',
+                      plan.maxMembers != null ? `Hasta ${plan.maxMembers} usuarios` : 'Usuarios sin tope',
                       'Todo lo de Starter',
                       'Reportes por sucursal',
                       'Facturación central',
@@ -314,7 +318,8 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                     {plan.name}
                   </div>
                   <div style={{ fontSize: 15, color: '#57544f' }}>
-                    Hasta 2 sucursales, pedidos ilimitados.
+                    {plan.maxBranches != null ? `${plan.maxBranches === 1 ? '1 sucursal' : `Hasta ${plan.maxBranches} sucursales`}` : 'Sucursales sin tope'}
+                    {plan.maxOrdersWeekly != null ? `, hasta ${plan.maxOrdersWeekly} pedidos/semana.` : ', pedidos ilimitados.'}
                   </div>
                 </div>
 
@@ -330,12 +335,12 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                         color: '#121214',
                       }}
                     >
-                      ${price.toLocaleString('es-MX')}
+                      {plan.isFree ? 'Gratis' : `$${price.toLocaleString('es-MX')}`}
                     </span>
-                    <span style={{ fontSize: 17, color: '#57544f' }}>{perLabel(interval)}</span>
+                    {!plan.isFree && <span style={{ fontSize: 17, color: '#57544f' }}>{perLabel(interval)}</span>}
                   </div>
-                  <span style={{ fontSize: 13, color: '#9B9590' }}>IVA incluido</span>
-                  <span style={{ fontSize: 15, color: '#57544f' }}>{note}</span>
+                  {!plan.isFree && <span style={{ fontSize: 13, color: '#9B9590' }}>IVA incluido</span>}
+                  {!plan.isFree && <span style={{ fontSize: 15, color: '#57544f' }}>{note}</span>}
                   {hasPromo && (
                     <span style={{ fontSize: 14, color: '#57544f' }}>
                       Primeras {plan.promoMonths * 4} semanas a{' '}
@@ -369,9 +374,15 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
                   {[
-                    'Hasta 2 sucursales',
-                    'Hasta 5 usuarios del equipo',
-                    'Pedidos ilimitados',
+                    plan.maxBranches != null
+                      ? (plan.maxBranches === 1 ? '1 sucursal' : `Hasta ${plan.maxBranches} sucursales`)
+                      : 'Sucursales sin tope',
+                    plan.maxMembers != null
+                      ? (plan.maxMembers === 1 ? '1 usuario' : `Hasta ${plan.maxMembers} usuarios del equipo`)
+                      : 'Usuarios sin tope',
+                    plan.maxOrdersWeekly != null
+                      ? `Hasta ${plan.maxOrdersWeekly} pedidos por semana`
+                      : 'Pedidos ilimitados',
                     'Pedidos programados',
                     'Seguimiento en vivo y corte semanal',
                   ].map((f) => (
