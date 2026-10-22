@@ -9,7 +9,12 @@ const LOGIN_PIN = `
   mutation loginBusinessPIN($business_account_id: ID!, $pin: String!) {
     loginBusinessPIN(business_account_id: $business_account_id, pin: $pin) {
       token
-      user
+      user {
+        id
+        business_id
+        business_slug
+        subscription_status
+      }
     }
   }
 `;

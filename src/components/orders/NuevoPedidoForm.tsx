@@ -201,7 +201,7 @@ export function NuevoPedidoForm({ negocio_slug, tiers, originLat, originLng, bra
       return;
     }
 
-    setPlace({ address: geocodeResult.address, lat: coords.lat, lng: coords.lng, city: '' });
+    setPlace({ address: geocodeResult.address, lat: coords.lat, lng: coords.lng, city: '', neighborhood: '' });
     setMapsStatus('ok');
   }
 

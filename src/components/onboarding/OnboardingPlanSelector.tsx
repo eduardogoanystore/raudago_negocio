@@ -35,12 +35,19 @@ function savingsNote(plan: SubscriptionPlan, interval: Interval): string {
   return `Sale a $${perWeek.toLocaleString('es-MX')}/semana`;
 }
 
-function planFeatures(key: string): string {
-  if (key === 'cadenas') {
-    return 'Una sola suscripción para todas tus sucursales. Precio y usuarios según tu operación.';
-  }
-  return 'Hasta 2 sucursales y 5 usuarios. Pedidos ilimitados, seguimiento en vivo y corte semanal.';
+function ordersLabel(n: number | null | undefined): string {
+  if (n == null) return 'Ilimitados';
+  return `Hasta ${n.toLocaleString('es-MX')}/sem`;
 }
+function branchesLabel(n: number | null | undefined): string {
+  if (n == null) return 'Ilimitadas';
+  return n === 1 ? '1 sucursal' : `Hasta ${n}`;
+}
+function membersLabel(n: number | null | undefined): string {
+  if (n == null) return 'Ilimitados';
+  return n === 1 ? '1 usuario' : `Hasta ${n}`;
+}
+
 
 interface Props {
   plans: SubscriptionPlan[];
@@ -60,6 +67,16 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
   const selectedPlan = sorted.find((p) => p.id === selectedId) ?? sorted[0] ?? null;
   const price = selectedPlan ? planPrice(selectedPlan, interval) : 0;
 
+  const trialDays = selectedPlan?.trial_days ?? null;
+  const promoWeeks =
+    selectedPlan?.promo_weeks ??
+    (selectedPlan?.promo_months ? selectedPlan.promo_months * 4 : null);
+  const promoPrice =
+    selectedPlan?.promo_price_cents != null
+      ? selectedPlan.promo_price_cents / 100
+      : null;
+  const showPromoBanner = trialDays != null && promoWeeks != null && promoPrice != null;
+
   function handleCheckout() {
     if (!selectedPlan) return;
     setCheckoutError(null);
@@ -72,11 +89,14 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
   return (
     <>
       <style>{`
-        #rg-plan-layout { display: flex; min-height: 100vh; }
-        #rg-plan-cards  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        #rg-plan-layout  { display: flex; height: 100vh; overflow: hidden; }
+        #rg-plan-left    { flex: 1; min-width: 0; overflow-y: auto; height: 100vh; }
+        #rg-plan-sidebar { width: 380px; flex-shrink: 0; height: 100vh; overflow-y: auto; position: sticky; top: 0; }
+        #rg-plan-cards   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 760px) {
-          #rg-plan-layout  { flex-direction: column; }
-          #rg-plan-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #DED7C9; }
+          #rg-plan-layout  { flex-direction: column; height: auto; overflow: visible; }
+          #rg-plan-left    { height: auto; overflow-y: visible; }
+          #rg-plan-sidebar { width: 100% !important; height: auto; position: static; border-left: none !important; border-top: 1px solid #DED7C9; }
           #rg-plan-cards   { grid-template-columns: 1fr; }
         }
       `}</style>
@@ -84,7 +104,7 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
       <div id="rg-plan-layout">
 
         {/* ── Left panel ── */}
-        <div style={{ flex: 1, minWidth: 0, padding: '28px 36px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div id="rg-plan-left" style={{ flex: 1, minWidth: 0, padding: '28px 36px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           <OnboardingHeader
             step={3}
@@ -123,12 +143,14 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
             ))}
           </div>
 
-          {/* Promo banner */}
-          <div style={{ background: '#C6FF3D', borderRadius: 14, padding: '12px 18px', fontSize: 15 }}>
-            <strong>7 días gratis</strong>, luego{' '}
-            <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>$220/semana</strong>{' '}
-            las primeras 4 semanas. Después, el precio normal que elijas aquí.
-          </div>
+          {/* Promo banner — only shown when the selected plan has promo data */}
+          {showPromoBanner && (
+            <div style={{ background: '#C6FF3D', borderRadius: 14, padding: '12px 18px', fontSize: 15 }}>
+              <strong>{trialDays} días gratis</strong>, luego{' '}
+              <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>${promoPrice!.toLocaleString('es-MX')}/semana</strong>{' '}
+              las primeras {promoWeeks} semanas. Después, el precio normal.
+            </div>
+          )}
 
           {/* Plan cards */}
           <div id="rg-plan-cards">
@@ -142,11 +164,13 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
               const radio   = on ? '7px solid #C6FF3D' : '2px solid #DED7C9';
               const cardPrice = planPrice(plan, interval);
 
+              const divider = <div style={{ height: 1, background: on ? '#2a2a2e' : '#F0EBE1', margin: '2px 0' }} />;
+
               return (
                 <div
                   key={plan.id}
                   onClick={() => setSelectedId(plan.id)}
-                  style={{ background: bg, border: bd, borderRadius: 20, padding: 22, display: 'flex', flexDirection: 'column', gap: 12, cursor: 'pointer', transition: 'background 150ms' }}
+                  style={{ background: bg, border: bd, borderRadius: 20, padding: 22, display: 'flex', flexDirection: 'column', gap: 14, cursor: 'pointer', transition: 'background 150ms' }}
                 >
                   {/* Name + radio */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -160,26 +184,58 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
                       <span style={{ fontFamily: 'var(--font-poppins), Poppins, system-ui', fontSize: 32, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1, color: priceC }}>
                         A tu medida
                       </span>
-                      <span style={{ fontSize: 14, color: muted }}>3 sucursales o más · te contactamos hoy</span>
+                      <span style={{ fontSize: 13, color: muted }}>3 sucursales o más · te contactamos hoy</span>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
-                      <span style={{ fontFamily: 'var(--font-poppins), Poppins, system-ui', fontSize: 42, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1, color: priceC }}>
-                        ${cardPrice.toLocaleString('es-MX')}
-                      </span>
-                      <span style={{ fontSize: 15, color: muted }}>{perLabel(interval)} · IVA incluido</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
+                        <span style={{ fontFamily: 'var(--font-poppins), Poppins, system-ui', fontSize: 42, fontWeight: 700, letterSpacing: '-.03em', lineHeight: 1, color: priceC }}>
+                          ${cardPrice.toLocaleString('es-MX')}
+                        </span>
+                        <span style={{ fontSize: 15, color: muted }}>{perLabel(interval)} · IVA incl.</span>
+                      </div>
+                      <span style={{ fontSize: 13, color: muted }}>{savingsNote(plan, interval)}</span>
                     </div>
                   )}
 
-                  {/* Savings note (non-cadenas only) */}
-                  {plan.key !== 'cadenas' && (
-                    <span style={{ fontSize: 14, color: muted }}>{savingsNote(plan, interval)}</span>
-                  )}
+                  {divider}
+
+                  {/* Stats strip */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                    {[
+                      { icon: '📦', label: 'Pedidos', value: ordersLabel(plan.max_orders_weekly) },
+                      { icon: '🏪', label: 'Sucursales', value: plan.key === 'cadenas' ? '3 o más' : branchesLabel(plan.max_branches) },
+                      { icon: '👥', label: 'Usuarios', value: membersLabel(plan.max_members) },
+                    ].map(({ icon, label, value }) => (
+                      <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <span style={{ fontSize: 17 }}>{icon}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: muted, textTransform: 'uppercase', letterSpacing: '.06em' }}>{label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: fg }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
 
                   {/* Features */}
-                  <span style={{ fontSize: 14, lineHeight: '21px', color: muted }}>
-                    {planFeatures(plan.key)}
-                  </span>
+                  {plan.features && plan.features.length > 0 && (
+                    <>
+                      {divider}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                        {plan.features.map((f, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, lineHeight: '18px', color: fg }}>
+                            <span style={{ color: on ? '#C6FF3D' : '#6C47FF', fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Description / context */}
+                  {plan.description && (
+                    <span style={{ fontSize: 12, color: muted, lineHeight: '16px', fontStyle: 'italic' }}>
+                      {plan.description}
+                    </span>
+                  )}
                 </div>
               );
             })}

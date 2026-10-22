@@ -4,6 +4,7 @@ import { Suspense, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { registerNegocioStep1Action } from '@/actions/onboarding';
+import { getCaptcha } from '@/utils/captcha';
 
 const INPUT_STYLE: React.CSSProperties = {
   height: 48,
@@ -65,7 +66,11 @@ function capitalizeWords(value: string): string {
   return value.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function CapitalizedInput({ name, placeholder }: { name: string; placeholder?: string }) {
+function capitalizeFirst(value: string): string {
+  return value ? value[0].toUpperCase() + value.slice(1) : value;
+}
+
+function CapitalizedInput({ name, placeholder, mode = 'words' }: { name: string; placeholder?: string; mode?: 'words' | 'first' }) {
   const [value, setValue] = useState('');
   return (
     <input
@@ -74,9 +79,9 @@ function CapitalizedInput({ name, placeholder }: { name: string; placeholder?: s
       type="text"
       placeholder={placeholder}
       required
-      autoCapitalize="words"
+      autoCapitalize={mode === 'words' ? 'words' : 'sentences'}
       value={value}
-      onChange={(e) => setValue(capitalizeWords(e.target.value))}
+      onChange={(e) => setValue(mode === 'words' ? capitalizeWords(e.target.value) : capitalizeFirst(e.target.value))}
       style={INPUT_STYLE}
     />
   );
@@ -92,7 +97,7 @@ function RegistroW1Content() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -116,8 +121,16 @@ function RegistroW1Content() {
     }
 
     setError(null);
+
+    let captchaToken: string | null = null;
+    try {
+      captchaToken = await getCaptcha(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY!);
+    } catch {
+      // fail silently in dev; in prod the server action will reject a missing token
+    }
+
     startTransition(async () => {
-      const result = await registerNegocioStep1Action(formData);
+      const result = await registerNegocioStep1Action(captchaToken, formData);
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
@@ -157,7 +170,9 @@ function RegistroW1Content() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           {planKey && <input type="hidden" name="_plan" value={planKey} />}
           {interval && <input type="hidden" name="_interval" value={interval} />}
-          <Field label="Nombre del negocio" name="business_name" placeholder="Ej. Sushi Kazán" />
+          <Field label="Nombre del negocio" name="business_name">
+            <CapitalizedInput name="business_name" placeholder="Ej. Sushi Kazán" mode="first" />
+          </Field>
 
           <div
             style={{

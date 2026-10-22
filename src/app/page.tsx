@@ -8,6 +8,7 @@ const SUBSCRIPTION_PLANS_QUERY = `
       id
       key
       name
+      description
       priceWeeklyCents
       priceMonthlyCents
       priceAnnualCents
@@ -19,6 +20,7 @@ const SUBSCRIPTION_PLANS_QUERY = `
       maxBranches
       maxMembers
       maxOrdersWeekly
+      features
     }
   }
 `;

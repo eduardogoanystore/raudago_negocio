@@ -37,10 +37,6 @@ const cardStyle: React.CSSProperties = {
 };
 
 const logoStyle: React.CSSProperties = {
-  fontSize: '1.75rem',
-  fontWeight: 800,
-  color: '#6C47FF',
-  letterSpacing: '-0.04em',
   marginBottom: '2rem',
   display: 'block',
 };
@@ -214,9 +210,9 @@ function VerificarEmailContent() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       <div style={cardStyle}>
-        <span style={logoStyle}>
-          Rauda<span style={{ color: '#121214' }}>Go</span>
-        </span>
+        <a href="/" style={{ ...logoStyle, textDecoration: 'none' }}>
+          <img src="/logo-full.svg" alt="RaudaGo" style={{ height: 36 }} />
+        </a>
 
         {state === 'loading' && (
           <>
@@ -302,7 +298,7 @@ export default function VerificarEmailNegocioPage() {
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           <div style={cardStyle}>
             <span style={logoStyle}>
-              Rauda<span style={{ color: '#121214' }}>Go</span>
+              <img src="/logo-full.svg" alt="RaudaGo" style={{ height: 36 }} />
             </span>
             <Spinner />
             <p style={bodyStyle}>Cargando…</p>

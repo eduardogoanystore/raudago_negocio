@@ -12,6 +12,10 @@ export interface SubscriptionPlan {
   trial_days: number;
   sort_order: number;
   features?: string[] | null;
+  max_orders_weekly?: number | null;
+  max_branches?: number | null;
+  max_members?: number | null;
+  promo_weeks?: number | null;
   is_default?: boolean;
 }
 

@@ -54,7 +54,6 @@ export function LoginForm({ siteKey }: { siteKey: string }) {
     } catch (err) {
       // Next.js redirect() throws a special error — keep button disabled until navigation completes
       if (err instanceof Error && err.message === 'NEXT_REDIRECT') return;
-      console.error("DEBUG CAPTCHA/LOGIN ERROR:", err);
       setError('Error al verificar. Intenta de nuevo.');
       setPending(false);
     }

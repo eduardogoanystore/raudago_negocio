@@ -24,13 +24,19 @@ const SUBSCRIPTION_PLANS_QUERY = `
       id
       key
       name
+      description
       priceWeeklyCents
       priceMonthlyCents
       priceAnnualCents
       promoMonths
       promoPriceCents
+      promoWeeks
       trialDays
       sortOrder
+      features
+      maxOrdersWeekly
+      maxBranches
+      maxMembers
     }
   }
 `;
@@ -69,13 +75,19 @@ export async function getPlans(
         id: string;
         key: string;
         name: string;
+        description: string | null;
         priceWeeklyCents: number;
         priceMonthlyCents: number;
         priceAnnualCents: number;
         promoMonths: number;
         promoPriceCents: number | null;
+        promoWeeks: number | null;
         trialDays: number;
         sortOrder: number;
+        features: string[] | null;
+        maxOrdersWeekly: number | null;
+        maxBranches: number | null;
+        maxMembers: number | null;
       }>;
     }>(SUBSCRIPTION_PLANS_QUERY, { subscriberType });
 
@@ -83,15 +95,22 @@ export async function getPlans(
       id: p.id,
       key: p.key,
       name: p.name,
+      description: p.description,
       price_weekly_cents: p.priceWeeklyCents,
       price_monthly_cents: p.priceMonthlyCents,
       price_annual_cents: p.priceAnnualCents,
       promo_months: p.promoMonths,
       promo_price_cents: p.promoPriceCents,
+      promo_weeks: p.promoWeeks,
       trial_days: p.trialDays,
       sort_order: p.sortOrder,
+      features: p.features,
+      max_orders_weekly: p.maxOrdersWeekly,
+      max_branches: p.maxBranches,
+      max_members: p.maxMembers,
     }));
-  } catch {
+  } catch (e: unknown) {
+    console.error('[getPlans] error:', e);
     return [];
   }
 }

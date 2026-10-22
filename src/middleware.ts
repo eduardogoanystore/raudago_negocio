@@ -56,7 +56,6 @@ const PORTAL_AUTH_FREE = [
   '/planes',
   '/verificar-email',
   '/verificar-email-negocio',
-  '/acceso',
 ];
 
 function isPortalAuthFree(pathname: string): boolean {
@@ -68,8 +67,46 @@ const RESERVED_SLUGS = new Set([
   'login', 'login-nip', 'registro', 'aceptar-invitacion', 'exito',
   'planes', 'verificar-email', 'verificar-email-negocio', 'repartidores',
   'terminos', 'privacidad', 'cancelacion', 'codigo-conducta',
-  'politicas-internas', 'acceso', 'api', '_next',
+  'politicas-internas', 'api', '_next',
 ]);
+
+// ─── rauda_attr — atribución de campaña (first-touch) ────────────────────────
+
+function buildRaudaAttr(url: URL): string | null {
+  const ref = url.searchParams.get('ref');
+  const utm_source = url.searchParams.get('utm_source');
+  const utm_medium = url.searchParams.get('utm_medium');
+  const utm_campaign = url.searchParams.get('utm_campaign');
+  const utm_term = url.searchParams.get('utm_term');
+  const utm_content = url.searchParams.get('utm_content');
+
+  if (!ref && !utm_source && !utm_campaign) return null;
+
+  return JSON.stringify({
+    ref: ref ?? null,
+    utm_source: utm_source ?? null,
+    utm_medium: utm_medium ?? null,
+    utm_campaign: utm_campaign ?? null,
+    utm_term: utm_term ?? null,
+    utm_content: utm_content ?? null,
+    landed_at: new Date().toISOString(),
+  });
+}
+
+function applyRaudaAttr(request: NextRequest, response: NextResponse): NextResponse {
+  if (request.cookies.get('rauda_attr')) return response;
+
+  const attr = buildRaudaAttr(request.nextUrl);
+  if (attr) {
+    response.cookies.set('rauda_attr', attr, {
+      maxAge: 60 * 60 * 24 * 30, // 30 días
+      path: '/',
+      httpOnly: false, // necesita ser legible desde server actions
+      sameSite: 'lax',
+    });
+  }
+  return response;
+}
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
@@ -125,7 +162,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    return NextResponse.next();
+    return applyRaudaAttr(request, NextResponse.next());
   }
 
   // / en portal → dispatcher (requiere auth)

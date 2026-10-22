@@ -7,6 +7,7 @@ export interface PlaceResult {
   lat: number | null;
   lng: number | null;
   city: string;
+  neighborhood: string;
 }
 
 interface Props {
@@ -103,10 +104,15 @@ export function PlacesAutocomplete({ onSelect, inputStyle, placeholder }: Props)
           const cityComponent = place.addressComponents?.find(
             (c: any) => c.types.includes('locality') || c.types.includes('administrative_area_level_2')
           );
-          const city = cityComponent?.longValue ?? cityComponent?.text ?? '';
+          const city = cityComponent?.longText ?? cityComponent?.longValue ?? cityComponent?.text ?? '';
+
+          const neighborhoodComponent = place.addressComponents?.find(
+            (c: any) => c.types.includes('sublocality_level_1') || c.types.includes('sublocality') || c.types.includes('neighborhood')
+          );
+          const neighborhood = neighborhoodComponent?.longText ?? neighborhoodComponent?.longValue ?? neighborhoodComponent?.text ?? '';
 
           setValue(address);
-          onSelect({ address, lat, lng, city });
+          onSelect({ address, lat, lng, city, neighborhood });
         });
       } catch (error) {
         console.error('Error al inicializar Places API (New):', error);

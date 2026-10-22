@@ -1,6 +1,7 @@
 import { getServerClient } from '@/graphql/client';
 import NegocioConfigForm from '@/components/business/NegocioConfigForm';
 import SlugEditor from '@/components/business/SlugEditor';
+import BusinessMediaUploader from '@/components/configuracion/BusinessMediaUploader';
 
 const MY_BUSINESS_FULL_QUERY = `
   query MyBusinessFull {
@@ -16,6 +17,8 @@ const MY_BUSINESS_FULL_QUERY = `
       is_active
       is_verified
       billing_status
+      logo_url
+      cover_url
       zone {
         id
         name
@@ -37,6 +40,8 @@ type BusinessData = {
   is_active: boolean;
   is_verified: boolean;
   billing_status: string;
+  logo_url: string | null;
+  cover_url: string | null;
   zone: { id: string; name: string } | null;
 };
 
@@ -182,6 +187,40 @@ export default async function ConfiguracionPage({
           }}
           account={accountData}
         />
+      </div>
+
+      {/* Card: imágenes del negocio */}
+      <div style={{
+        background: 'var(--color-surface)',
+        borderRadius: '0.75rem',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      }}>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+          Imágenes del negocio
+        </h2>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '1.5rem' }}>
+          El logo aparece en tu portal y en los pedidos. La portada se muestra en la página principal de tu negocio.
+        </p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+          gap: '2rem',
+        }}>
+          <BusinessMediaUploader
+            field="logo"
+            currentPath={business.logo_url}
+            negocio_slug={negocio_slug}
+            label="Logo"
+          />
+          <BusinessMediaUploader
+            field="cover"
+            currentPath={business.cover_url}
+            negocio_slug={negocio_slug}
+            label="Imagen de portada"
+          />
+        </div>
       </div>
 
       {/* Card: URL del portal */}

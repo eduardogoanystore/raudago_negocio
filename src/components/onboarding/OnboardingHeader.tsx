@@ -17,26 +17,8 @@ export function OnboardingHeader({ step, title, subtitle }: OnboardingHeaderProp
     <div style={{ marginBottom: 36 }}>
       {/* Logo */}
       <div style={{ marginBottom: 28 }}>
-        <a
-          href="/"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            textDecoration: 'none',
-          }}
-        >
-          <img src="/icon.svg" alt="RaudaGo" style={{ height: 28 }} />
-          <span
-            style={{
-              fontSize: 22,
-              fontWeight: 800,
-              color: '#6C47FF',
-              letterSpacing: '-0.03em',
-            }}
-          >
-            Rauda<span style={{ color: '#121214' }}>Go</span>
-          </span>
+        <a href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+          <img src="/logo-full.svg" alt="RaudaGo" style={{ height: 36 }} />
         </a>
       </div>
 

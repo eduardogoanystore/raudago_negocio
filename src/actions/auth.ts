@@ -20,7 +20,12 @@ const LOGIN_BUSINESS = `
   mutation loginBusiness($email: String!, $password: String!) {
     loginBusiness(email: $email, password: $password) {
       token
-      user
+      user {
+        id
+        business_id
+        business_slug
+        subscription_status
+      }
     }
   }
 `;
@@ -43,7 +48,11 @@ const SIGNUP_BUSINESS = `
       phone: $phone
     ) {
       token
-      user
+      user {
+        id
+        business_id
+        business_slug
+      }
     }
   }
 `;
@@ -78,10 +87,13 @@ export async function loginBusinessAction(
   captchaToken: string | null,
   formData: FormData
 ): Promise<AuthActionState> {
-  if (!captchaToken) return { error: 'Verifica que no eres un bot' };
-  const captcha = await verifyCaptcha(captchaToken);
-  if (!captcha || !captcha.success || captcha.score < 0.5) {
-    return { error: 'Verifica que no eres un bot' };
+  const isDev = process.env.NODE_ENV === 'development';
+  if (!isDev) {
+    if (!captchaToken) return { error: 'Verifica que no eres un bot' };
+    const captcha = await verifyCaptcha(captchaToken);
+    if (!captcha || !captcha.success || captcha.score < 0.5) {
+      return { error: 'Verifica que no eres un bot' };
+    }
   }
 
   const email = formData.get('email') as string;
@@ -158,10 +170,13 @@ export async function signupBusinessAction(
   captchaToken: string | null,
   formData: FormData
 ): Promise<AuthActionState> {
-  if (!captchaToken) return { error: 'Verifica que no eres un bot' };
-  const captcha = await verifyCaptcha(captchaToken);
-  if (!captcha || !captcha.success || captcha.score < 0.5) {
-    return { error: 'Verifica que no eres un bot' };
+  const isDev = process.env.NODE_ENV === 'development';
+  if (!isDev) {
+    if (!captchaToken) return { error: 'Verifica que no eres un bot' };
+    const captcha = await verifyCaptcha(captchaToken);
+    if (!captcha || !captcha.success || captcha.score < 0.5) {
+      return { error: 'Verifica que no eres un bot' };
+    }
   }
 
   const email = formData.get('email') as string;

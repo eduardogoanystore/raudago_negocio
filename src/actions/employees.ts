@@ -41,7 +41,11 @@ const ACCEPT_INVITATION = `
   mutation acceptBusinessInvitation($token: String!, $first_name: String!, $last_name: String!, $password: String!) {
     acceptBusinessInvitation(token: $token, first_name: $first_name, last_name: $last_name, password: $password) {
       token
-      user
+      user {
+        id
+        business_id
+        business_slug
+      }
     }
   }
 `;

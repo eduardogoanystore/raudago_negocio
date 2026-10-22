@@ -8,6 +8,7 @@ export interface SubscriptionPlan {
   id: string;
   key: string;
   name: string;
+  description: string | null;
   priceWeeklyCents: number;
   priceMonthlyCents: number;
   priceAnnualCents: number;
@@ -19,6 +20,7 @@ export interface SubscriptionPlan {
   maxBranches: number | null;
   maxMembers: number | null;
   maxOrdersWeekly: number | null;
+  features: string[] | null;
 }
 
 type Interval = 'WEEK' | 'MONTH' | 'YEAR';
@@ -264,10 +266,14 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                     <div style={{ fontSize: 22, fontWeight: 700, color: '#C6FF3D', letterSpacing: '-.01em' }}>
                       A tu medida
                     </div>
-                    <span style={{ fontSize: 15, color: '#8E8B93', lineHeight: 1.5 }}>
-                      Precio según el número de sucursales. Si ya usas Starter, te cambiamos y{' '}
-                      <strong style={{ color: '#F3EFE7' }}>se descuenta lo que ya pagaste.</strong>
-                    </span>
+                    {plan.description ? (
+                      <span style={{ fontSize: 15, color: '#8E8B93', lineHeight: 1.5 }}>{plan.description}</span>
+                    ) : (
+                      <span style={{ fontSize: 15, color: '#8E8B93', lineHeight: 1.5 }}>
+                        Precio según el número de sucursales. Si ya usas Starter, te cambiamos y{' '}
+                        <strong style={{ color: '#F3EFE7' }}>se descuenta lo que ya pagaste.</strong>
+                      </span>
+                    )}
                   </div>
 
                   <a
@@ -291,22 +297,18 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
                   <div style={{ height: 1, background: '#2A2A31' }} />
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                    {[
-                      plan.maxBranches != null ? `Hasta ${plan.maxBranches} sucursales` : 'Sucursales sin tope',
-                      plan.maxMembers != null ? `Hasta ${plan.maxMembers} usuarios` : 'Usuarios sin tope',
-                      'Todo lo de Starter',
-                      'Reportes por sucursal',
-                      'Facturación central',
-                    ].map((f) => (
-                      <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C6FF3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
-                        <span style={{ fontSize: 16, lineHeight: '24px', color: '#F3EFE7' }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {plan.features && plan.features.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                      {plan.features.map((f) => (
+                        <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C6FF3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                          <span style={{ fontSize: 16, lineHeight: '24px', color: '#F3EFE7' }}>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             }
@@ -330,8 +332,12 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                     {plan.name}
                   </div>
                   <div style={{ fontSize: 15, color: '#57544f' }}>
-                    {plan.maxBranches != null ? `${plan.maxBranches === 1 ? '1 sucursal' : `Hasta ${plan.maxBranches} sucursales`}` : 'Sucursales sin tope'}
-                    {plan.maxOrdersWeekly != null ? `, hasta ${plan.maxOrdersWeekly} pedidos/semana.` : ', pedidos ilimitados.'}
+                    {plan.description ?? (
+                      <>
+                        {plan.maxBranches != null ? `${plan.maxBranches === 1 ? '1 sucursal' : `Hasta ${plan.maxBranches} sucursales`}` : 'Sucursales sin tope'}
+                        {plan.maxOrdersWeekly != null ? `, hasta ${plan.maxOrdersWeekly} pedidos/semana.` : ', pedidos ilimitados.'}
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -384,28 +390,18 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
                 <div style={{ height: 1, background: '#F0EBE1' }} />
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                  {[
-                    plan.maxBranches != null
-                      ? (plan.maxBranches === 1 ? '1 sucursal' : `Hasta ${plan.maxBranches} sucursales`)
-                      : 'Sucursales sin tope',
-                    plan.maxMembers != null
-                      ? (plan.maxMembers === 1 ? '1 usuario' : `Hasta ${plan.maxMembers} usuarios del equipo`)
-                      : 'Usuarios sin tope',
-                    plan.maxOrdersWeekly != null
-                      ? `Hasta ${plan.maxOrdersWeekly} pedidos por semana`
-                      : 'Pedidos ilimitados',
-                    'Pedidos programados',
-                    'Seguimiento en vivo y corte semanal',
-                  ].map((f) => (
-                    <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                      <span style={{ fontSize: 16, lineHeight: '24px', color: '#121214' }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
+                {plan.features && plan.features.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                    {plan.features.map((f) => (
+                      <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 3, flex: 'none' }}>
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                        <span style={{ fontSize: 16, lineHeight: '24px', color: '#121214' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

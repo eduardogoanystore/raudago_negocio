@@ -18,15 +18,10 @@ export default function LoginPage() {
         boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
       }}>
         <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-          <span style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--color-primary)',
-            letterSpacing: '-0.03em',
-          }}>
-            Rauda<span style={{ color: 'var(--color-foreground)' }}>Go</span>
-          </span>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-muted)', fontSize: '0.9rem' }}>
+          <a href="/" style={{ display: 'inline-block', marginBottom: '0.75rem' }}>
+            <img src="/logo-full.svg" alt="RaudaGo" style={{ height: 36 }} />
+          </a>
+          <p style={{ margin: 0, color: 'var(--color-muted)', fontSize: '0.9rem' }}>
             Accede a tu negocio
           </p>
         </div>

@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { GraphQLClient } from 'graphql-request';
+import { verifyCaptcha } from '@/utils/captcha';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
@@ -22,6 +23,8 @@ const SIGNUP_BUSINESS = `
     $last_name: String!
     $business_name: String!
     $phone: String!
+    $ref_code: String
+    $attribution: AttributionInput
   ) {
     signupBusiness(
       email: $email
@@ -30,16 +33,33 @@ const SIGNUP_BUSINESS = `
       last_name: $last_name
       business_name: $business_name
       phone: $phone
+      ref_code: $ref_code
+      attribution: $attribution
     ) {
       token
-      user
+      user {
+        id
+        business_id
+        business_slug
+      }
     }
   }
 `;
 
-const CREATE_BRANCH = `
-  mutation createBranch($input: CreateBranchInput!) {
-    createBranch(input: $input) {
+const MY_PRIMARY_BRANCH = `
+  query myPrimaryBranch {
+    myBusiness {
+      branches {
+        id
+        is_primary
+      }
+    }
+  }
+`;
+
+const UPDATE_BRANCH = `
+  mutation updateBranch($branch_id: ID!, $input: UpdateBranchInput!) {
+    updateBranch(branch_id: $branch_id, input: $input) {
       id
       lat
       lng
@@ -60,6 +80,15 @@ const CREATE_CHECKOUT = `
 export interface OnboardingActionState {
   error?: string;
   redirectTo?: string;
+}
+
+interface AttributionInput {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  landed_at?: string | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -87,8 +116,18 @@ function parseGqlError(err: unknown, fallback: string): string {
 // ─── W1 — Datos del negocio ───────────────────────────────────────────────────
 
 export async function registerNegocioStep1Action(
+  captchaToken: string | null,
   formData: FormData
 ): Promise<OnboardingActionState> {
+  const isDev = process.env.NODE_ENV === 'development';
+  if (!isDev) {
+    if (!captchaToken) return { error: 'Verifica que no eres un bot' };
+    const captcha = await verifyCaptcha(captchaToken);
+    if (!captcha || !captcha.success || captcha.score < 0.5) {
+      return { error: 'Verifica que no eres un bot' };
+    }
+  }
+
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const first_name = formData.get('owner_first_name') as string;
@@ -102,6 +141,31 @@ export async function registerNegocioStep1Action(
 
   if (!phone || phone.length < 10) {
     return { error: 'El teléfono es obligatorio (10 dígitos).' };
+  }
+
+  const cookieStore = await cookies();
+
+  // Leer atribución UTM (primera visita gana, guardado por el middleware)
+  const rawAttr = cookieStore.get('rauda_attr')?.value;
+  let ref_code: string | undefined;
+  let attribution: AttributionInput | undefined;
+
+  if (rawAttr) {
+    try {
+      const parsed = JSON.parse(rawAttr);
+      ref_code = parsed.ref ?? undefined;
+      attribution = {
+        utm_source: parsed.utm_source,
+        utm_medium: parsed.utm_medium,
+        utm_campaign: parsed.utm_campaign,
+        utm_term: parsed.utm_term,
+        utm_content: parsed.utm_content,
+        landed_at: parsed.landed_at,
+      };
+    } catch {
+      // fallback: era un string plano (legacy)
+      ref_code = rawAttr;
+    }
   }
 
   const client = new GraphQLClient(ENDPOINT);
@@ -126,14 +190,14 @@ export async function registerNegocioStep1Action(
       last_name,
       business_name,
       phone,
+      ref_code,
+      attribution,
     });
   } catch (err: unknown) {
     return { error: parseGqlError(err, 'Error al crear la cuenta. Intenta de nuevo.') };
   }
 
   const { token, user } = data.signupBusiness;
-
-  const cookieStore = await cookies();
 
   cookieStore.set('businessToken', token, {
     httpOnly: true,
@@ -193,15 +257,31 @@ export async function registerNegocioStep1Action(
 
 // ─── W2 — Sucursal ────────────────────────────────────────────────────────────
 
-export async function registerNegocioStep2Action(
-  formData: FormData
-): Promise<OnboardingActionState> {
-  const address = formData.get('address') as string;
-  const referencia = (formData.get('referencia') as string) || undefined;
-  const phone = (formData.get('phone') as string) || undefined;
-  const lat = (formData.get('lat') as string) || undefined;
-  const lng = (formData.get('lng') as string) || undefined;
-  const city = (formData.get('city') as string) || '';
+// Mapeo de nombres de ciudad (Google Places) → city_id en BD
+const CITY_ID_MAP: Record<string, string> = {
+  'culiacán': 'city_culiacan_01',
+  'culiacan': 'city_culiacan_01',
+  'culiacán rosales': 'city_culiacan_01',
+  'culiacan rosales': 'city_culiacan_01',
+};
+
+function resolveCityId(cityName: string): string | null {
+  return CITY_ID_MAP[cityName.toLowerCase().trim()] ?? null;
+}
+
+export async function registerNegocioStep2Action(args: {
+  address: string;
+  lat: string;
+  lng: string;
+  city: string;
+  neighborhood?: string;
+  referencia?: string;
+  phone?: string;
+  planKey?: string;
+  interval?: string;
+}): Promise<OnboardingActionState> {
+  const { address, lat, lng, city, neighborhood, referencia, phone } = args;
+  const city_id = resolveCityId(city);
 
   if (!address) {
     return { error: 'La dirección de recolección es requerida.' };
@@ -218,20 +298,30 @@ export async function registerNegocioStep2Action(
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const branchInput: Record<string, unknown> = {
-    name: 'Principal',
-    address,
-    city,
-    is_primary: true,
-  };
+  // Obtener la sucursal primaria creada en el signup
+  let primaryBranchId: string | null = null;
+  try {
+    const biz = await client.request(MY_PRIMARY_BRANCH) as any;
+    const branches: { id: string; is_primary: boolean }[] = biz?.myBusiness?.branches ?? [];
+    primaryBranchId = branches.find((b) => b.is_primary)?.id ?? branches[0]?.id ?? null;
+  } catch {
+    return { error: 'Error al obtener la sucursal. Intenta de nuevo.' };
+  }
 
+  if (!primaryBranchId) {
+    return { error: 'No se encontró la sucursal. Intenta de nuevo.' };
+  }
+
+  const branchInput: Record<string, unknown> = { address };
+  if (city_id) branchInput.city_id = city_id;
   if (lat) branchInput.lat = parseFloat(lat);
   if (lng) branchInput.lng = parseFloat(lng);
   if (phone) branchInput.phone = phone;
   if (referencia) branchInput.referencia = referencia;
+  if (neighborhood) branchInput.neighborhood = neighborhood;
 
   try {
-    await client.request(CREATE_BRANCH, { input: branchInput });
+    await client.request(UPDATE_BRANCH, { branch_id: primaryBranchId, input: branchInput });
   } catch (err: unknown) {
     return { error: parseGqlError(err, 'Error al guardar la dirección. Intenta de nuevo.') };
   }
@@ -244,8 +334,8 @@ export async function registerNegocioStep2Action(
     path: '/',
   });
 
-  const planKey = (formData.get('_plan') as string) || '';
-  const interval = (formData.get('_interval') as string) || '';
+  const planKey = args.planKey || '';
+  const interval = args.interval || '';
   const qs = new URLSearchParams();
   if (planKey) qs.set('plan', planKey);
   if (interval) qs.set('interval', interval);
@@ -271,10 +361,10 @@ export async function createNegocioCheckoutAction(
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  let checkoutUrl: string;
+  let checkoutUrl: string | null;
   try {
     const data = await client.request<{
-      createSubscriptionCheckout: { checkoutUrl: string };
+      createSubscriptionCheckout: { checkoutUrl: string | null };
     }>(CREATE_CHECKOUT, { planId, interval });
     checkoutUrl = data.createSubscriptionCheckout.checkoutUrl;
   } catch (err: unknown) {
@@ -284,5 +374,5 @@ export async function createNegocioCheckoutAction(
   // Onboarding completado — limpiar cookie de paso
   cookieStore.delete('onboarding_step');
 
-  redirect(checkoutUrl);
+  redirect(checkoutUrl ?? '/exito');
 }

@@ -49,14 +49,20 @@ function RegistroSucursalContent() {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    formData.set('address', place.address);
-    formData.set('lat', place.lat?.toString() ?? '');
-    formData.set('lng', place.lng?.toString() ?? '');
-    formData.set('city', place.city);
 
     setError(null);
     startTransition(async () => {
-      const result = await registerNegocioStep2Action(formData);
+      const result = await registerNegocioStep2Action({
+        address: place.address,
+        lat: place.lat?.toString() ?? '',
+        lng: place.lng?.toString() ?? '',
+        city: place.city,
+        neighborhood: place.neighborhood || undefined,
+        referencia: (formData.get('referencia') as string) || undefined,
+        phone: (formData.get('phone') as string) || undefined,
+        planKey: planKey || undefined,
+        interval: interval || undefined,
+      });
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
@@ -94,8 +100,6 @@ function RegistroSucursalContent() {
         />
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {planKey && <input type="hidden" name="_plan" value={planKey} />}
-          {interval && <input type="hidden" name="_interval" value={interval} />}
 
           {/* Dirección con Google Places */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
