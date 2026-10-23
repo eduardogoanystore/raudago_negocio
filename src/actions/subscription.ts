@@ -61,37 +61,54 @@ const RESUME_SUBSCRIPTION_MUTATION = `
   }
 `;
 
+// ─── Raw plan shape returned by the GraphQL endpoint ─────────────────────────
+
+interface RawPlan {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  priceWeeklyCents: number;
+  priceMonthlyCents: number;
+  priceAnnualCents: number;
+  promoMonths: number;
+  promoPriceCents: number | null;
+  promoWeeks: number | null;
+  trialDays: number;
+  sortOrder: number;
+  features: string[] | null;
+  maxOrdersWeekly: number | null;
+  maxBranches: number | null;
+  maxMembers: number | null;
+}
+
 // ─── Server Actions ───────────────────────────────────────────────────────────
 
 export async function getPlans(
   subscriberType: 'BUSINESS' | 'DRIVER',
 ): Promise<SubscriptionPlan[]> {
   try {
-    const client = new GraphQLClient(ENDPOINT, {
-      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+    // Use raw fetch so Next.js can attach the Data Cache tag.
+    // graphql-request abstracts fetch and does not expose next: {} options,
+    // so we call fetch directly for this specific public query.
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: SUBSCRIPTION_PLANS_QUERY,
+        variables: { subscriberType },
+      }),
+      next: { tags: ['subscription_plans'], revalidate: false },
     });
-    const data = await client.request<{
-      subscriptionPlans: Array<{
-        id: string;
-        key: string;
-        name: string;
-        description: string | null;
-        priceWeeklyCents: number;
-        priceMonthlyCents: number;
-        priceAnnualCents: number;
-        promoMonths: number;
-        promoPriceCents: number | null;
-        promoWeeks: number | null;
-        trialDays: number;
-        sortOrder: number;
-        features: string[] | null;
-        maxOrdersWeekly: number | null;
-        maxBranches: number | null;
-        maxMembers: number | null;
-      }>;
-    }>(SUBSCRIPTION_PLANS_QUERY, { subscriberType });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = (await res.json()) as {
+      data?: { subscriptionPlans: RawPlan[] };
+      errors?: { message: string }[];
+    };
+    if (json.errors?.length) throw new Error(json.errors[0].message);
+    const plans = json.data?.subscriptionPlans ?? [];
 
-    return data.subscriptionPlans.map((p) => ({
+    return plans.map((p) => ({
       id: p.id,
       key: p.key,
       name: p.name,
