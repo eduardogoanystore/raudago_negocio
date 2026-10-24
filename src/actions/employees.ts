@@ -37,6 +37,15 @@ const SET_PIN = `
   }
 `;
 
+const UPDATE_MEMBER_PERMISSIONS = `
+  mutation updateBusinessMember($member_id: ID!, $permissions: String!) {
+    updateBusinessMember(member_id: $member_id, permissions: $permissions) {
+      id
+      permissions
+    }
+  }
+`;
+
 const ACCEPT_INVITATION = `
   mutation acceptBusinessInvitation($token: String!, $first_name: String!, $last_name: String!, $password: String!) {
     acceptBusinessInvitation(token: $token, first_name: $first_name, last_name: $last_name, password: $password) {
@@ -105,6 +114,25 @@ export async function setPinAction(
     return { success: true };
   } catch (err: any) {
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al configurar PIN' };
+  }
+}
+
+export async function updateMemberPermissionsAction(
+  memberId: string,
+  negocio_slug: string,
+  permissions: string[],
+): Promise<{ error?: string; success?: boolean }> {
+  try {
+    const client = await getServerClient();
+    await client.request(UPDATE_MEMBER_PERMISSIONS, {
+      member_id: memberId,
+      permissions: JSON.stringify(permissions),
+    });
+    revalidatePath(`/${negocio_slug}/empleados`);
+    revalidatePath(`/${negocio_slug}/empleados/${memberId}`);
+    return { success: true };
+  } catch (err: any) {
+    return { error: err?.response?.errors?.[0]?.message ?? 'Error al guardar permisos' };
   }
 }
 

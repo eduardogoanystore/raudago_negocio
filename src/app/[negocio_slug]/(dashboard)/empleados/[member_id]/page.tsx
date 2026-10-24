@@ -3,6 +3,8 @@ import { getServerClient } from '@/graphql/client';
 import { validateSession } from '@/utils/auth/validateSession';
 import { SetPinForm } from '@/components/employees/SetPinForm';
 import { DeactivateMemberButton } from '@/components/employees/DeactivateMemberButton';
+import { PermissionsSection } from '@/components/employees/PermissionsSection';
+import { getEffectivePermissions } from '@/utils/permissions';
 
 const BUSINESS_MEMBERS_QUERY = `
   query businessMembers {
@@ -12,6 +14,7 @@ const BUSINESS_MEMBERS_QUERY = `
       status
       invitation_email
       is_owner
+      permissions
       business_account {
         id
         first_name
@@ -35,6 +38,7 @@ interface Member {
   status: string;
   invitation_email: string | null;
   is_owner: boolean;
+  permissions: string | null;
   business_account: BusinessAccount | null;
 }
 
@@ -105,6 +109,21 @@ export default async function EmpleadoDetallePage({
 
   const canDeactivate = canManage && !member.is_owner && member.status === 'active';
   const canRemove = canManage && !member.is_owner && (member.status === 'invited' || member.status === 'inactive');
+
+  // Parse permission overrides from JSON string stored on the member
+  let overrides: string[] = [];
+  try {
+    if (member.permissions) {
+      const parsed = JSON.parse(member.permissions);
+      if (Array.isArray(parsed)) overrides = parsed as string[];
+    }
+  } catch {
+    // malformed JSON — treat as no overrides
+  }
+
+  const effectivePermissions = getEffectivePermissions(member.role, overrides);
+  // Owner and manager can edit permissions; owner's own perms are read-only
+  const canEditPermissions = canManage && !member.is_owner;
 
   return (
     <div style={{ maxWidth: '640px' }}>
@@ -195,6 +214,15 @@ export default async function EmpleadoDetallePage({
           </div>
         )}
       </div>
+
+      {/* Card: Permisos */}
+      <PermissionsSection
+        memberId={member.id}
+        negocio_slug={negocio_slug}
+        role={member.role}
+        initialOverrides={overrides}
+        readonly={!canEditPermissions}
+      />
 
       {/* Card: PIN (solo si es el perfil propio) */}
       {isOwnProfile && (
