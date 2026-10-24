@@ -11,6 +11,8 @@ const BUSINESS_MEMBERS_QUERY = `
     businessMembers {
       id
       role
+      role_id
+      role_permissions
       status
       invitation_email
       is_owner
@@ -35,6 +37,8 @@ interface BusinessAccount {
 interface Member {
   id: string;
   role: string;
+  role_id: string | null;
+  role_permissions: string | null;
   status: string;
   invitation_email: string | null;
   is_owner: boolean;
@@ -50,10 +54,9 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  active:    { label: 'Activo',     color: '#065F46', bg: '#D1FAE5' },
-  invited:   { label: 'Invitado',   color: '#92400E', bg: '#FEF3C7' },
-  suspended: { label: 'Suspendido', color: '#9A3412', bg: '#FEF2F2' },
-  inactive:  { label: 'Inactivo',   color: '#6B7280', bg: '#F3F4F6' },
+  active:   { label: 'Activo',   color: '#065F46', bg: '#D1FAE5' },
+  invited:  { label: 'Invitado', color: '#92400E', bg: '#FEF3C7' },
+  inactive: { label: 'Inactivo', color: '#6B7280', bg: '#F3F4F6' },
 };
 
 export default async function EmpleadoDetallePage({
@@ -121,7 +124,15 @@ export default async function EmpleadoDetallePage({
     // malformed JSON — treat as no overrides
   }
 
-  const effectivePermissions = getEffectivePermissions(member.role, overrides);
+  let rolePermissions: string[] = [];
+  try {
+    if (member.role_permissions) {
+      const parsed = JSON.parse(member.role_permissions);
+      if (Array.isArray(parsed)) rolePermissions = parsed as string[];
+    }
+  } catch { /* treat as empty */ }
+
+  const effectivePermissions = getEffectivePermissions(rolePermissions, overrides);
   // Owner and manager can edit permissions; owner's own perms are read-only
   const canEditPermissions = canManage && !member.is_owner;
 
@@ -219,7 +230,7 @@ export default async function EmpleadoDetallePage({
       <PermissionsSection
         memberId={member.id}
         negocio_slug={negocio_slug}
-        role={member.role}
+        rolePermissions={rolePermissions}
         initialOverrides={overrides}
         readonly={!canEditPermissions}
       />

@@ -4,9 +4,19 @@ import { revalidatePath } from 'next/cache';
 import { getServerClient } from '@/graphql/client';
 import { redirect } from 'next/navigation';
 
+export type BusinessRole = {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  permissions: string;
+  is_system: boolean;
+  sort_order: number;
+};
+
 const INVITE_MEMBER = `
-  mutation inviteBusinessMember($email: String!, $role: String!) {
-    inviteBusinessMember(email: $email, role: $role) {
+  mutation inviteBusinessMember($email: String!, $role_id: ID!) {
+    inviteBusinessMember(email: $email, role_id: $role_id) {
       id
       role
       status
@@ -65,15 +75,15 @@ export async function inviteMemberAction(
   formData: FormData,
 ) {
   const email = formData.get('email') as string;
-  const role = formData.get('role') as string;
+  const role_id = formData.get('role_id') as string;
 
-  if (!email || !role) return { error: 'Email y rol son requeridos' };
+  if (!email || !role_id) return { error: 'Email y rol son requeridos' };
 
   try {
     const client = await getServerClient();
     const data = await client.request<{
       inviteBusinessMember: { id: string; invitation_token?: string };
-    }>(INVITE_MEMBER, { email, role });
+    }>(INVITE_MEMBER, { email, role_id });
     revalidatePath(`/${negocio_slug}/empleados`);
     return { success: true, invitation_token: data.inviteBusinessMember.invitation_token };
   } catch (err: any) {
@@ -133,6 +143,30 @@ export async function updateMemberPermissionsAction(
     return { success: true };
   } catch (err: any) {
     return { error: err?.response?.errors?.[0]?.message ?? 'Error al guardar permisos' };
+  }
+}
+
+const BUSINESS_ROLES = `
+  query businessRoles {
+    businessRoles {
+      id
+      key
+      name
+      description
+      permissions
+      is_system
+      sort_order
+    }
+  }
+`;
+
+export async function fetchBusinessRolesAction(): Promise<BusinessRole[]> {
+  try {
+    const client = await getServerClient();
+    const data = await client.request<{ businessRoles: BusinessRole[] }>(BUSINESS_ROLES);
+    return data.businessRoles ?? [];
+  } catch {
+    return [];
   }
 }
 

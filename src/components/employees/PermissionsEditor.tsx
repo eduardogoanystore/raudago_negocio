@@ -1,17 +1,17 @@
 'use client';
 
-import { PERMISSIONS_GROUPS, ROLE_DEFAULT_PERMISSIONS } from '@/utils/permissions';
+import { PERMISSIONS_GROUPS } from '@/utils/permissions';
 
 type Props = {
-  role: string;
+  rolePermissions: string[];
   overrides: string[];
   effectivePermissions: string[];
   readonly?: boolean;
   onChange: (overrides: string[]) => void;
 };
 
-export function PermissionsEditor({ role, overrides, effectivePermissions, readonly, onChange }: Props) {
-  const roleDefaults = ROLE_DEFAULT_PERMISSIONS[role] ?? [];
+export function PermissionsEditor({ rolePermissions, overrides, effectivePermissions, readonly, onChange }: Props) {
+  const roleDefaults = rolePermissions;
 
   function handleToggle(permKey: string, currentlyActive: boolean) {
     const fromRole = roleDefaults.includes(permKey);

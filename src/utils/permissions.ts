@@ -37,32 +37,8 @@ export const PERMISSIONS_GROUPS = [
   },
 ];
 
-export const ROLE_DEFAULT_PERMISSIONS: Record<string, string[]> = {
-  owner: [
-    'pedidos.ver', 'pedidos.crear', 'pedidos.cancelar', 'pedidos.ver_historial',
-    'empleados.ver', 'empleados.invitar', 'empleados.gestionar', 'empleados.permisos',
-    'configuracion.ver', 'configuracion.editar',
-    'facturacion.ver', 'facturacion.gestionar',
-  ],
-  manager: [
-    'pedidos.ver', 'pedidos.crear', 'pedidos.cancelar', 'pedidos.ver_historial',
-    'empleados.ver', 'empleados.invitar', 'empleados.gestionar',
-    'configuracion.ver', 'configuracion.editar',
-    'facturacion.ver',
-  ],
-  staff: [
-    'pedidos.ver', 'pedidos.crear', 'pedidos.cancelar', 'pedidos.ver_historial',
-    'empleados.ver',
-    'configuracion.ver',
-  ],
-  counter: [
-    'pedidos.ver', 'pedidos.crear',
-  ],
-};
-
-export function getEffectivePermissions(role: string, overrides: string[]): string[] {
-  const rolePerms = ROLE_DEFAULT_PERMISSIONS[role] ?? [];
-  return [...new Set([...rolePerms, ...overrides])];
+export function getEffectivePermissions(rolePermissions: string[], overrides: string[]): string[] {
+  return [...new Set([...rolePermissions, ...overrides])];
 }
 
 export const ROLE_LABELS: Record<string, string> = {

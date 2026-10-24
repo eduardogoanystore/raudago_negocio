@@ -2,20 +2,19 @@
 
 import { useState, useActionState } from 'react';
 import { inviteMemberAction } from '@/actions/employees';
+import type { BusinessRole } from '@/actions/employees';
 
-const ROLES = [
-  { value: 'manager', label: 'Encargado', description: 'Acceso total excepto facturacion' },
-  { value: 'staff',   label: 'Cajero',    description: 'Crear y seguir pedidos' },
-  { value: 'counter', label: 'Contador',  description: 'Solo lectura' },
-];
-
-const ROLE_CONFIG: Record<string, { color: string; bg: string }> = {
+const SYSTEM_ROLE_COLORS: Record<string, { color: string; bg: string }> = {
   manager: { color: '#0284C7', bg: '#E0F2FE' },
   staff:   { color: '#059669', bg: '#D1FAE5' },
   counter: { color: '#6B7280', bg: '#F3F4F6' },
 };
+const DEFAULT_ROLE_COLOR = { color: '#7C3AED', bg: '#EDE9FE' };
+function getRoleColor(role: BusinessRole) {
+  return SYSTEM_ROLE_COLORS[role.key] ?? DEFAULT_ROLE_COLOR;
+}
 
-export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) {
+export function InviteEmployeeModal({ negocio_slug, roles }: { negocio_slug: string; roles: BusinessRole[] }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [role, setRole] = useState('');
@@ -38,7 +37,7 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
     setEmail('');
   }
 
-  const selectedRole = ROLES.find((r) => r.value === role);
+  const filteredRoles = roles.filter((r) => r.key !== 'owner');
 
   return (
     <>
@@ -109,13 +108,13 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
                   Selecciona el rol del empleado
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  {ROLES.map((r) => {
-                    const cfg = ROLE_CONFIG[r.value];
-                    const selected = role === r.value;
+                  {filteredRoles.map((r) => {
+                    const cfg = getRoleColor(r);
+                    const selected = role === r.id;
                     return (
                       <button
-                        key={r.value}
-                        onClick={() => setRole(r.value)}
+                        key={r.id}
+                        onClick={() => setRole(r.id)}
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
@@ -129,11 +128,13 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
                         }}
                       >
                         <span style={{ fontWeight: 700, fontSize: '0.95rem', color: selected ? cfg.color : 'var(--color-foreground)' }}>
-                          {r.label}
+                          {r.name}
                         </span>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginTop: '0.2rem' }}>
-                          {r.description}
-                        </span>
+                        {r.description && (
+                          <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginTop: '0.2rem' }}>
+                            {r.description}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -270,7 +271,7 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
                 ) : (
                   <form action={formAction}>
                     <input type="hidden" name="email" value={email} />
-                    <input type="hidden" name="role" value={role} />
+                    <input type="hidden" name="role_id" value={role} />
 
                     <div style={{
                       background: 'var(--color-background)',
@@ -281,7 +282,7 @@ export function InviteEmployeeModal({ negocio_slug }: { negocio_slug: string }) 
                       <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.5rem' }}>Resumen</p>
                       <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>
                         Invitar a <strong>{email}</strong> como{' '}
-                        <strong>{selectedRole?.label ?? role}</strong>
+                        <strong>{roles.find((r) => r.id === role)?.name ?? role}</strong>
                       </p>
                     </div>
 

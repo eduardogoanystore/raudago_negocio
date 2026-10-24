@@ -8,18 +8,18 @@ import { getEffectivePermissions } from '@/utils/permissions';
 type Props = {
   memberId: string;
   negocio_slug: string;
-  role: string;
+  rolePermissions: string[];
   initialOverrides: string[];
   readonly?: boolean;
 };
 
-export function PermissionsSection({ memberId, negocio_slug, role, initialOverrides, readonly }: Props) {
+export function PermissionsSection({ memberId, negocio_slug, rolePermissions, initialOverrides, readonly }: Props) {
   const [overrides, setOverrides] = useState<string[]>(initialOverrides);
   const [isDirty, setIsDirty] = useState(false);
   const [result, setResult] = useState<{ error?: string; success?: boolean } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const effectivePermissions = getEffectivePermissions(role, overrides);
+  const effectivePermissions = getEffectivePermissions(rolePermissions, overrides);
 
   function handleChange(newOverrides: string[]) {
     setOverrides(newOverrides);
@@ -45,7 +45,7 @@ export function PermissionsSection({ memberId, negocio_slug, role, initialOverri
       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
     }}>
       <PermissionsEditor
-        role={role}
+        rolePermissions={rolePermissions}
         overrides={overrides}
         effectivePermissions={effectivePermissions}
         readonly={readonly}

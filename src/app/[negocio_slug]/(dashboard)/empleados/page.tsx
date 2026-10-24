@@ -1,6 +1,7 @@
 import { getServerClient } from '@/graphql/client';
 import { EmployeeRow } from '@/components/employees/EmployeeRow';
 import { InviteEmployeeModal } from '@/components/employees/InviteEmployeeModal';
+import type { BusinessRole } from '@/actions/employees';
 
 const BUSINESS_MEMBERS_QUERY = `
   query businessMembers {
@@ -16,6 +17,20 @@ const BUSINESS_MEMBERS_QUERY = `
         last_name
         email
       }
+    }
+  }
+`;
+
+const BUSINESS_ROLES_QUERY = `
+  query businessRoles {
+    businessRoles {
+      id
+      key
+      name
+      description
+      permissions
+      is_system
+      sort_order
     }
   }
 `;
@@ -45,11 +60,20 @@ export default async function EmpleadosPage({
 
   let members: Member[] = [];
   let fetchError = false;
+  let roles: BusinessRole[] = [];
 
   try {
     const client = await getServerClient();
-    const data = await client.request<{ businessMembers: Member[] }>(BUSINESS_MEMBERS_QUERY);
-    members = data.businessMembers ?? [];
+    const [membersData, rolesData] = await Promise.all([
+      client.request<{ businessMembers: Member[] }>(BUSINESS_MEMBERS_QUERY).catch(() => null),
+      client.request<{ businessRoles: BusinessRole[] }>(BUSINESS_ROLES_QUERY).catch(() => ({ businessRoles: [] })),
+    ]);
+    if (!membersData) {
+      fetchError = true;
+    } else {
+      members = membersData.businessMembers ?? [];
+    }
+    roles = rolesData?.businessRoles ?? [];
   } catch {
     fetchError = true;
   }
@@ -63,7 +87,7 @@ export default async function EmpleadosPage({
             {fetchError ? 'Error al cargar' : `${members.length} miembro${members.length !== 1 ? 's' : ''}`}
           </p>
         </div>
-        <InviteEmployeeModal negocio_slug={negocio_slug} />
+        <InviteEmployeeModal negocio_slug={negocio_slug} roles={roles} />
       </div>
 
       {fetchError && (
