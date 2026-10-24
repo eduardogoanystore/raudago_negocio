@@ -1,10 +1,7 @@
 import Image from 'next/image';
 import { headers } from 'next/headers';
 import { publicClient } from '@/graphql/client';
-import { FaqSection, RegistroForm } from './RepartidorLandingClient';
-
-// Cambiar a 'store' cuando la app esté en las tiendas
-const CTA_MODE: 'form' | 'store' = 'form';
+import { FaqSection } from './RepartidorLandingClient';
 
 const LANDING_QUERY = `
   query repartidoresLanding {
@@ -16,10 +13,6 @@ const LANDING_QUERY = `
       promoPriceCents
       trialDays
       promoMonths
-    }
-    zones {
-      id
-      name
     }
   }
 `;
@@ -34,20 +27,13 @@ interface DriverPlan {
   promoMonths: number;
 }
 
-interface Zone {
-  id: string;
-  name: string;
-}
-
 export default async function RepartidorLanding() {
   let plan: DriverPlan | null = null;
-  let zones: string[] = [];
   try {
-    const data = await publicClient.request<{ subscriptionPlans: DriverPlan[]; zones: Zone[] }>(
+    const data = await publicClient.request<{ subscriptionPlans: DriverPlan[] }>(
       LANDING_QUERY,
     );
     plan = data.subscriptionPlans?.[0] ?? null;
-    zones = (data.zones ?? []).map((z) => z.name);
   } catch {
     // Si falla el fetch, se muestran valores vacíos
   }
@@ -71,7 +57,6 @@ export default async function RepartidorLanding() {
         #rep-how-grid   { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
         #rep-vs-grid    { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
         #rep-offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
-        #rep-reg-grid   { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 36px; }
         @media (max-width: 600px) {
           #rep-hero-title  { font-size: clamp(34px, 9vw, 54px) !important; }
           #rep-offer-title { font-size: clamp(28px, 7vw, 40px) !important; }
@@ -88,7 +73,7 @@ export default async function RepartidorLanding() {
             </span>
           </div>
           <div style={{ marginLeft: 'auto' }}>
-            <a href="#registro" style={{ height: 42, padding: '0 20px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <a href="https://repartidor.raudago.com/alta" style={{ height: 42, padding: '0 20px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               Regístrate gratis
             </a>
           </div>
@@ -111,7 +96,7 @@ export default async function RepartidorLanding() {
               Un solo app. Ves el precio, la distancia y el destino antes de decir que sí. Sin regatear, sin sorpresas, sin dictar nada por audio.
             </p>
             <div>
-              <a href="#registro" style={{ height: 58, padding: '0 32px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+              <a href="https://repartidor.raudago.com/alta" style={{ height: 58, padding: '0 32px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                 Quiero repartir con RaudaGo →
               </a>
             </div>
@@ -153,7 +138,7 @@ export default async function RepartidorLanding() {
           </div>
           <div id="rep-how-grid">
             {[
-              { bg: '#F3EFE7', dark: false, num: '1.', title: 'Te registras', desc: 'Nombre, WhatsApp y zona. Sin trámites largos, sin contrato. Listo en menos de 2 minutos.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg> },
+              { bg: '#F3EFE7', dark: false, num: '1.', title: 'Te registras', desc: 'Tu celular, datos básicos y tipo de vehículo. Sin trámites largos, sin contrato.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg> },
               { bg: '#F3EFE7', dark: false, num: '2.', title: 'Ves todos los pedidos', desc: 'Cada pedido muestra el negocio, el destino, la distancia y lo que cobras. Antes de tocar nada.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg> },
               { bg: '#F3EFE7', dark: false, num: '3.', title: 'Tomas el que te convenga', desc: 'Aceptas solo lo que vale tu tiempo. Sin presiones, sin turnos forzados, sin tener que responder rápido en un chat.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></svg> },
               { bg: '#C6FF3D', dark: true, num: '4.', title: 'Cobras lo que ya viste', desc: 'Sin regateos al llegar. El precio que viste en la app es el que cobras, siempre.', icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121214" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg> },
@@ -258,7 +243,7 @@ export default async function RepartidorLanding() {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <a href="#registro" style={{ height: 58, padding: '0 40px', borderRadius: 999, background: '#C6FF3D', color: '#121214', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <a href="https://repartidor.raudago.com/alta" style={{ height: 58, padding: '0 40px', borderRadius: 999, background: '#C6FF3D', color: '#121214', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               Empezar mis {trialDays} gratis
             </a>
           </div>
@@ -279,48 +264,38 @@ export default async function RepartidorLanding() {
 
       {/* ── Registro ── */}
       <section id="registro" style={{ background: '#FFFDFA', borderTop: '1px solid #DED7C9', padding: '96px 24px' }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto', boxSizing: 'border-box' }}>
-          <div id="rep-reg-grid" style={{ alignItems: 'start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <h2 style={{ fontFamily: 'var(--font-poppins), system-ui, sans-serif', fontSize: 42, fontWeight: 700, letterSpacing: '-.04em', color: '#121214', lineHeight: 1.08, margin: 0 }}>
-                Empieza a ver pedidos hoy mismo.
-              </h2>
-              <p style={{ fontSize: 18, color: '#57544f', lineHeight: 1.6, margin: 0 }}>
-                {trialDays} gratis, sin tarjeta, sin dejar tu grupo actual. Entra, revisa cómo se ve la app y decide si quieres seguir.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {['Ves precio y destino antes de aceptar', 'Tarifa fija, sin regateos', 'Sin contrato, cancelas cuando quieras'].map((item) => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#C6FF3D', display: 'grid', placeItems: 'center', flex: 'none' }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#121214" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                    </div>
-                    <span style={{ fontSize: 15, color: '#57544f' }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ background: '#F3EFE7', borderRadius: 24, padding: '36px 32px' }}>
-              {CTA_MODE === 'form' ? (
-                <RegistroForm zones={zones} />
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', textAlign: 'center', padding: '24px 0' }}>
-                  <h3 style={{ fontFamily: 'var(--font-poppins), system-ui, sans-serif', fontSize: 20, fontWeight: 700, color: '#121214', margin: 0, letterSpacing: '-.02em' }}>
-                    Descarga la app y regístrate ahí
-                  </h3>
-                  <p style={{ fontSize: 15, color: '#57544f', margin: 0, lineHeight: 1.6 }}>Disponible en App Store y Google Play.</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-                    <a href="#app-store" style={{ height: 52, borderRadius: 14, background: '#121214', color: '#ffffff', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      App Store
-                    </a>
-                    <a href="#google-play" style={{ height: 52, borderRadius: 14, background: '#121214', color: '#ffffff', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                      Google Play
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
+        <div style={{ maxWidth: 760, margin: '0 auto', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32, textAlign: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <h2 style={{ fontFamily: 'var(--font-poppins), system-ui, sans-serif', fontSize: 42, fontWeight: 700, letterSpacing: '-.04em', color: '#121214', lineHeight: 1.08, margin: 0 }}>
+              Empieza a ver pedidos hoy mismo.
+            </h2>
+            <p style={{ fontSize: 18, color: '#57544f', lineHeight: 1.6, margin: 0 }}>
+              {trialDays} gratis, sin tarjeta, sin dejar tu grupo actual.
+            </p>
           </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
+            {['Ves precio y destino antes de aceptar', 'Tarifa fija, sin regateos', 'Sin contrato, cancelas cuando quieras'].map((item) => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F3EFE7', borderRadius: 999, padding: '8px 16px' }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#C6FF3D', display: 'grid', placeItems: 'center', flex: 'none' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#121214" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                </div>
+                <span style={{ fontSize: 14, color: '#57544f', fontWeight: 500 }}>{item}</span>
+              </div>
+            ))}
+          </div>
+          <a
+            href="https://repartidor.raudago.com/alta"
+            style={{ height: 62, padding: '0 44px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 18, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', textDecoration: 'none' }}
+          >
+            Registrarme gratis →
+          </a>
+          <p style={{ fontSize: 13, color: '#8E8B93', margin: 0 }}>
+            Al registrarte aceptas nuestros{' '}
+            <a href="/terminos" style={{ color: '#6C47FF', fontWeight: 600 }}>Términos</a>,{' '}
+            <a href="/privacidad" style={{ color: '#6C47FF', fontWeight: 600 }}>Privacidad</a>{' '}
+            y{' '}
+            <a href="/codigo-conducta" style={{ color: '#6C47FF', fontWeight: 600 }}>Código de Conducta</a>.
+          </p>
         </div>
       </section>
 
