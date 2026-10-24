@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Poppins, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 
 const poppins = Poppins({
@@ -59,10 +58,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={`${poppins.variable} ${jakarta.variable} ${mono.variable}`}>
       <body>
         {children}
-        <Script
-          strategy="beforeInteractive"
-          src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY}`}
-        />
       </body>
     </html>
   );

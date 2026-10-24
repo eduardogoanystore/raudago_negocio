@@ -97,6 +97,7 @@ export async function getPlans(
       body: JSON.stringify({
         query: SUBSCRIPTION_PLANS_QUERY,
         variables: { subscriberType },
+        operationName: 'subscriptionPlans',
       }),
       next: { tags: ['subscription_plans'], revalidate: false },
     });

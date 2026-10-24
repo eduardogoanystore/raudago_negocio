@@ -86,6 +86,33 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
         gap: 36,
       }}
     >
+      <style>{`
+        @media (max-width: 900px) {
+          [data-plans-grid=""] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+        @media (max-width: 480px) {
+          [data-plans-grid=""] { grid-template-columns: 1fr !important; }
+          #planes { padding: 48px 16px !important; }
+          [data-interval-selector=""] { width: 100% !important; padding: 4px !important; box-sizing: border-box !important; }
+          [data-interval-btn=""] {
+            flex: 1 !important;
+            height: auto !important;
+            min-height: 40px !important;
+            padding: 6px 6px !important;
+            font-size: 12px !important;
+            flex-direction: column !important;
+            gap: 3px !important;
+            white-space: normal !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
+          [data-interval-badge=""] {
+            font-size: 10px !important;
+            height: 18px !important;
+            padding: 0 6px !important;
+          }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 660 }}>
         <div
@@ -132,6 +159,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
         )}
 
         <div
+          data-interval-selector=""
           style={{
             display: 'flex',
             gap: 4,
@@ -158,6 +186,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
           ).map((opt) => (
             <button
               key={opt.value}
+              data-interval-btn=""
               onClick={() => setInterval(opt.value)}
               style={{
                 height: 44,
@@ -179,6 +208,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
               {opt.label}
               {opt.badge && (
                 <span
+                  data-interval-badge=""
                   style={{
                     height: 22,
                     padding: '0 8px',

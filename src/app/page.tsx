@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import { publicClient } from '@/graphql/client';
 import { PlanesSection, SubscriptionPlan } from '@/components/landing/PlanesSection';
+
+const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
 const SUBSCRIPTION_PLANS_QUERY = `
   query subscriptionPlans {
@@ -28,12 +29,21 @@ const SUBSCRIPTION_PLANS_QUERY = `
 export default async function LandingPage() {
   let plans: SubscriptionPlan[] = [];
   try {
-    const data = await publicClient.request<{ subscriptionPlans: SubscriptionPlan[] }>(
-      SUBSCRIPTION_PLANS_QUERY,
-    );
-    plans = data.subscriptionPlans.sort((a, b) => a.sortOrder - b.sortOrder);
-  } catch {
-    // Si falla el fetch, planes vacíos — la sección se renderiza vacía
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: SUBSCRIPTION_PLANS_QUERY, operationName: 'subscriptionPlans' }),
+      next: { tags: ['subscription_plans'], revalidate: false },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = (await res.json()) as {
+      data?: { subscriptionPlans: SubscriptionPlan[] };
+      errors?: { message: string }[];
+    };
+    if (json.errors?.length) throw new Error(json.errors[0].message);
+    plans = (json.data?.subscriptionPlans ?? []).sort((a, b) => a.sortOrder - b.sortOrder);
+  } catch (e) {
+    console.error('[LandingPage] getPlans error:', e);
   }
 
   return (
