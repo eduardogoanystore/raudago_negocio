@@ -54,8 +54,6 @@ interface MyBusiness {
   branches: Branch[];
 }
 
-const ZONA_BLOQUEADA = new Set(['pre_lanzamiento', 'pausada']);
-
 export default async function RegistroPlanPage({
   searchParams,
 }: {
@@ -113,8 +111,8 @@ export default async function RegistroPlanPage({
     );
   }
 
-  // ── Variante zona_espera ───────────────────────────────────────────────────
-  if (zona && ZONA_BLOQUEADA.has(zona.status)) {
+  // ── Variante zona_espera (pausada) → pantalla de espera sin planes ────────
+  if (zona && zona.status === 'pausada') {
     return (
       <ZonaEsperaView
         variant="zona_espera"
@@ -131,6 +129,21 @@ export default async function RegistroPlanPage({
     );
   }
 
+  // ── Variante pre_lanzamiento → planes visibles pero bloqueados ─────────────
+  const prelanzamiento =
+    zona && zona.status === 'pre_lanzamiento'
+      ? {
+          zona: {
+            name: zona.name,
+            meta_negocios_apertura: zona.meta_negocios_apertura,
+            meta_repartidores_apertura: zona.meta_repartidores_apertura,
+            negocios_en_espera: zona.negocios_en_espera,
+            repartidores_en_espera: zona.repartidores_en_espera,
+          },
+          businessSlug: businessSlug ?? '',
+        }
+      : undefined;
+
   return (
     <main style={{ minHeight: '100vh', background: '#F3EFE7' }}>
       <OnboardingPlanSelector
@@ -138,6 +151,7 @@ export default async function RegistroPlanPage({
         initialPlanKey={params.plan}
         initialInterval={params.interval as 'WEEK' | 'MONTH' | 'YEAR' | undefined}
         businessName={businessName}
+        prelanzamiento={prelanzamiento}
       />
     </main>
   );

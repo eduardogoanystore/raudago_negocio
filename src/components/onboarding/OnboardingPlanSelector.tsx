@@ -7,6 +7,162 @@ import type { SubscriptionPlan } from '@/lib/subscription';
 
 type Interval = 'WEEK' | 'MONTH' | 'YEAR';
 
+// ─── Tipos para pre-lanzamiento ───────────────────────────────────────────────
+
+export interface PreLanzamientoZona {
+  name: string;
+  meta_negocios_apertura: number;
+  meta_repartidores_apertura: number;
+  negocios_en_espera: number;
+  repartidores_en_espera: number;
+}
+
+// ─── Subcomponente: barra de progreso ─────────────────────────────────────────
+
+function ProgressBar({ actual, meta, label }: { actual: number; meta: number; label: string }) {
+  const pct = meta > 0 ? Math.min(100, (actual / meta) * 100) : 0;
+  const done = pct >= 100;
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+        <span style={{ fontSize: 12, color: '#57544f' }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#121214' }}>
+          {actual} / {meta}
+        </span>
+      </div>
+      <div style={{ height: 5, borderRadius: 999, background: '#DED7C9', overflow: 'hidden' }}>
+        <div
+          style={{
+            height: '100%',
+            width: `${pct}%`,
+            borderRadius: 999,
+            background: done ? '#22C55E' : '#6C47FF',
+            transition: 'width 0.3s',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Subcomponente: banner + CTA referidos para pre-lanzamiento ───────────────
+
+function PreLanzamientoBanner({
+  zona,
+  businessSlug,
+}: {
+  zona: PreLanzamientoZona;
+  businessSlug: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const referralUrl = `https://raudago.com/registro?ref=${businessSlug}`;
+
+  function handleCopy() {
+    navigator.clipboard.writeText(referralUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  }
+
+  return (
+    <div
+      style={{
+        background: '#FEF3C7',
+        border: '1px solid #FDE68A',
+        borderRadius: 14,
+        padding: '16px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+      }}
+    >
+      {/* Cabecera */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: '#92400E',
+            background: '#FDE68A',
+            border: '1px solid #F59E0B',
+            borderRadius: 999,
+            padding: '2px 10px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Pronto — {zona.name}
+        </span>
+      </div>
+
+      {/* Título y subtítulo */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#121214', margin: 0 }}>
+          Tu zona abre pronto
+        </p>
+        <p style={{ fontSize: 13, color: '#57544f', margin: 0, lineHeight: 1.5 }}>
+          Reserva tu lugar — cuando se complete el cupo, la zona abre y puedes empezar a operar.
+        </p>
+      </div>
+
+      {/* Barras de progreso */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <ProgressBar
+          actual={zona.negocios_en_espera}
+          meta={zona.meta_negocios_apertura}
+          label={`${zona.negocios_en_espera} de ${zona.meta_negocios_apertura} negocios reservados en tu zona`}
+        />
+      </div>
+
+      {/* CTA referidos */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p style={{ fontSize: 13, color: '#57544f', margin: 0 }}>
+          ¿Conoces otros negocios en tu zona? Invitalos y tu zona abre antes.
+        </p>
+        <button
+          type="button"
+          onClick={handleCopy}
+          style={{
+            height: 40,
+            borderRadius: 10,
+            border: '1.5px solid #F59E0B',
+            background: copied ? '#DCFCE7' : '#FFFDFA',
+            color: copied ? '#166534' : '#92400E',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            transition: 'background 0.2s, color 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 7,
+          }}
+        >
+          {copied ? (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Enlace copiado
+            </>
+          ) : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              Compartir mi link
+            </>
+          )}
+        </button>
+        <p style={{ fontSize: 11, color: '#8E8B93', margin: 0, wordBreak: 'break-all' }}>
+          {referralUrl}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function planPrice(plan: SubscriptionPlan, interval: Interval): number {
   if (interval === 'WEEK') return plan.price_weekly_cents / 100;
   if (interval === 'MONTH') return plan.price_monthly_cents / 100;
@@ -54,15 +210,21 @@ interface Props {
   initialPlanKey?: string;
   initialInterval?: Interval;
   businessName?: string;
+  /** Si se pasa, la zona está en pre-lanzamiento: se muestran planes bloqueados + banner de reserva */
+  prelanzamiento?: {
+    zona: PreLanzamientoZona;
+    businessSlug: string;
+  };
 }
 
-export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval, businessName }: Props) {
+export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval, businessName, prelanzamiento }: Props) {
   const sorted = [...plans].sort((a, b) => a.sort_order - b.sort_order);
   const [interval, setInterval] = useState<Interval>(initialInterval ?? 'WEEK');
   const defaultPlan = (initialPlanKey ? sorted.find((p) => p.key === initialPlanKey) : null) ?? sorted[0];
   const [selectedId, setSelectedId] = useState<string>(defaultPlan?.id ?? '');
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [reservaToast, setReservaToast] = useState(false);
 
   const selectedPlan = sorted.find((p) => p.id === selectedId) ?? sorted[0] ?? null;
   const price = selectedPlan ? planPrice(selectedPlan, interval) : 0;
@@ -108,8 +270,14 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
 
           <OnboardingHeader
             step={3}
-            title="Elige tu plan"
-            subtitle={businessName ? `${businessName} · pedidos ilimitados en ambos planes.` : 'Pedidos ilimitados en ambos planes.'}
+            title={prelanzamiento ? 'Reserva tu lugar' : 'Elige tu plan'}
+            subtitle={
+              prelanzamiento
+                ? `${prelanzamiento.zona.name} · cuando la zona abra, activas tu plan.`
+                : businessName
+                  ? `${businessName} · pedidos ilimitados en ambos planes.`
+                  : 'Pedidos ilimitados en ambos planes.'
+            }
           />
 
           {/* Interval selector */}
@@ -143,8 +311,16 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
             ))}
           </div>
 
-          {/* Promo banner — only shown when the selected plan has promo data */}
-          {showPromoBanner && (
+          {/* Banner pre-lanzamiento — reemplaza el promo banner en modo reserva */}
+          {prelanzamiento && (
+            <PreLanzamientoBanner
+              zona={prelanzamiento.zona}
+              businessSlug={prelanzamiento.businessSlug}
+            />
+          )}
+
+          {/* Promo banner — only shown when the selected plan has promo data (no pre-lanzamiento) */}
+          {!prelanzamiento && showPromoBanner && (
             <div style={{ background: '#C6FF3D', borderRadius: 14, padding: '12px 18px', fontSize: 15 }}>
               <strong>{trialDays} días gratis</strong>, luego{' '}
               <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>${promoPrice!.toLocaleString('es-MX')}/semana</strong>{' '}
@@ -155,7 +331,8 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
           {/* Plan cards */}
           <div id="rg-plan-cards">
             {sorted.map((plan) => {
-              const on      = plan.id === selectedId;
+              // En pre-lanzamiento, todas las cards se ven como no seleccionadas (aspecto neutro)
+              const on      = !prelanzamiento && plan.id === selectedId;
               const fg      = on ? '#fff'     : '#121214';
               const muted   = on ? '#8E8B93'  : '#57544f';
               const priceC  = on ? '#C6FF3D'  : '#121214';
@@ -169,8 +346,14 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
               return (
                 <div
                   key={plan.id}
-                  onClick={() => setSelectedId(plan.id)}
-                  style={{ background: bg, border: bd, borderRadius: 20, padding: 22, display: 'flex', flexDirection: 'column', gap: 14, cursor: 'pointer', transition: 'background 150ms' }}
+                  onClick={prelanzamiento ? undefined : () => setSelectedId(plan.id)}
+                  style={{
+                    background: bg, border: bd, borderRadius: 20, padding: 22,
+                    display: 'flex', flexDirection: 'column', gap: 14,
+                    cursor: prelanzamiento ? 'default' : 'pointer',
+                    opacity: prelanzamiento ? 0.72 : 1,
+                    transition: 'background 150ms',
+                  }}
                 >
                   {/* Name + radio */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -289,25 +472,56 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
           <div style={{ height: 1, background: '#F0EBE1' }} />
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button
-              onClick={handleCheckout}
-              disabled={isPending || !selectedPlan}
-              style={{
-                height: 56, borderRadius: 999, border: 'none',
-                background: isPending ? '#A08EFF' : '#6C47FF',
-                color: '#fff', fontSize: 17, fontWeight: 700,
-                cursor: isPending || !selectedPlan ? 'not-allowed' : 'pointer',
-                fontFamily: 'inherit', transition: 'background 0.15s',
-              }}
-            >
-              {isPending ? 'Redirigiendo...' : 'Continuar al pago'}
-            </button>
-            {checkoutError && (
-              <p style={{ fontSize: 13, color: '#B00020', margin: 0, textAlign: 'center' }}>{checkoutError}</p>
+            {prelanzamiento ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReservaToast(true);
+                    setTimeout(() => setReservaToast(false), 3500);
+                  }}
+                  style={{
+                    height: 56, borderRadius: 999, border: 'none',
+                    background: '#E5E0D8',
+                    color: '#8E8B93', fontSize: 17, fontWeight: 700,
+                    cursor: 'default',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Reservar lugar
+                </button>
+                {reservaToast && (
+                  <p style={{ fontSize: 13, color: '#57544f', margin: 0, textAlign: 'center', lineHeight: 1.5 }}>
+                    Tu lugar queda reservado. Te avisamos cuando tu zona abra.
+                  </p>
+                )}
+                <span style={{ fontSize: 12, lineHeight: '18px', color: '#7d7972', textAlign: 'center' }}>
+                  Sin cobros hasta que tu zona abra.
+                </span>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleCheckout}
+                  disabled={isPending || !selectedPlan}
+                  style={{
+                    height: 56, borderRadius: 999, border: 'none',
+                    background: isPending ? '#A08EFF' : '#6C47FF',
+                    color: '#fff', fontSize: 17, fontWeight: 700,
+                    cursor: isPending || !selectedPlan ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit', transition: 'background 0.15s',
+                  }}
+                >
+                  {isPending ? 'Redirigiendo...' : 'Continuar al pago'}
+                </button>
+                {checkoutError && (
+                  <p style={{ fontSize: 13, color: '#B00020', margin: 0, textAlign: 'center' }}>{checkoutError}</p>
+                )}
+                <span style={{ fontSize: 12, lineHeight: '18px', color: '#7d7972', textAlign: 'center' }}>
+                  Sigue el checkout seguro de Stripe. Hoy no se cobra nada.
+                </span>
+              </>
             )}
-            <span style={{ fontSize: 12, lineHeight: '18px', color: '#7d7972', textAlign: 'center' }}>
-              Sigue el checkout seguro de Stripe. Hoy no se cobra nada.
-            </span>
           </div>
         </div>
 

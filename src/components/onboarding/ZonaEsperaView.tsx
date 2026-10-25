@@ -140,11 +140,11 @@ export function ZonaEsperaView(props: ZonaEsperaViewProps) {
 
   const titulo = isZonaEspera
     ? 'Tu zona aún no está disponible'
-    : 'Aún no llegamos a tu colonia';
+    : 'Tu colonia aún no tiene cobertura';
 
   const subtitulo = isZonaEspera
     ? 'Pero ya estamos trabajando en ello. Cuando esté lista te avisamos por email y WhatsApp.'
-    : 'La demanda que registras nos ayuda a planear cuándo llegar.';
+    : 'Estamos expandiendo. Te avisamos cuando lleguemos a tu zona.';
 
   const conteoTexto = isZonaEspera
     ? `${props.zona.negocios_en_espera} negocios y ${props.zona.repartidores_en_espera} repartidores registrados en tu zona`
