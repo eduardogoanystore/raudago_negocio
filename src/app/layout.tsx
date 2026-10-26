@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
+import { LEGAL } from '@/config/legal';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -56,6 +57,29 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${poppins.variable} ${jakarta.variable} ${mono.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: LEGAL.comercial,
+              url: LEGAL.sitio,
+              email: LEGAL.correo,
+              telephone: LEGAL.telefono,
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Calle Tarascos 2579',
+                addressLocality: 'Culiacán',
+                addressRegion: 'Sinaloa',
+                postalCode: '80160',
+                addressCountry: 'MX',
+              },
+            }),
+          }}
+        />
+      </head>
       <body>
         {children}
       </body>

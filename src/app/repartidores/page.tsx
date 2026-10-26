@@ -2,6 +2,8 @@ import Image from 'next/image';
 import { headers } from 'next/headers';
 import { publicClient } from '@/graphql/client';
 import { FaqSection } from './RepartidorLandingClient';
+import { LEGAL } from '@/config/legal';
+import Footer from '@/components/Footer';
 
 const LANDING_QUERY = `
   query repartidoresLanding {
@@ -300,33 +302,7 @@ export default async function RepartidorLanding() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: '#121214', borderTop: '1px solid #2A2A31', padding: '56px 24px 40px' }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto', boxSizing: 'border-box', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Image src="/icon.svg" alt="RaudaGo" width={30} height={30} />
-            <div>
-              <div style={{ fontFamily: 'var(--font-poppins), system-ui, sans-serif', fontSize: 16, fontWeight: 700, color: '#F3EFE7', letterSpacing: '-.02em' }}>RaudaGo</div>
-              <div style={{ fontSize: 12, color: '#8E8B93', marginTop: 1 }}>Culiacán, Sinaloa</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#8E8B93', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 4 }}>Contacto</div>
-            <a href="https://wa.me/526672277437" target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>WhatsApp 667 227 7437</a>
-            <a href="mailto:jesus.ed13@gmail.com" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>jesus.ed13@gmail.com</a>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#8E8B93', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 4 }}>Legal</div>
-            <a href="/terminos" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Términos</a>
-            <a href="/cancelacion" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Cancelación</a>
-            <a href="/privacidad" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Privacidad</a>
-            <a href="/codigo-conducta" style={{ fontSize: 14, color: '#DED7C9', fontWeight: 500 }}>Código de Conducta</a>
-          </div>
-        </div>
-        <div style={{ maxWidth: 1180, margin: '40px auto 0', boxSizing: 'border-box', paddingTop: 24, borderTop: '1px solid #2A2A31', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <span style={{ fontSize: 13, color: '#57544f' }}>© 2026 RaudaGo</span>
-          <a href="/" style={{ fontSize: 13, color: '#8E8B93', fontWeight: 500 }}>¿Tienes un negocio? Conoce RaudaGo Negocios</a>
-        </div>
-      </footer>
+      <Footer variant="dark" />
 
     </div>
   );

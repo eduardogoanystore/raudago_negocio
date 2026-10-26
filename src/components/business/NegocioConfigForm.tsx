@@ -2,6 +2,7 @@
 
 import { useActionState, useTransition } from 'react';
 import { updateProfileAction, type UpdateProfileActionState } from '@/actions/business';
+import { LEGAL } from '@/config/legal';
 
 interface BusinessData {
   name: string;
@@ -128,7 +129,7 @@ export default function NegocioConfigForm({
           border: '1px solid #F59E0B',
           borderRadius: '0.5rem',
         }}>
-          El nombre, email y dirección del negocio solo pueden modificarse a través de soporte. Contacta a <strong>soporte@raudago.mx</strong> para solicitar cambios.
+          El nombre, email y dirección del negocio solo pueden modificarse a través de soporte. Contacta a <strong>{LEGAL.correo}</strong> para solicitar cambios.
         </p>
         <div style={gridStyle}>
           <div style={fieldStyle}>

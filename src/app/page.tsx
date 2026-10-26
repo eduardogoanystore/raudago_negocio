@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { PlanesSection, SubscriptionPlan } from '@/components/landing/PlanesSection';
+import Footer from '@/components/Footer';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT ?? 'http://localhost:8787';
 
@@ -964,64 +965,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer
-        style={{
-          background: '#121214',
-          borderTop: '1px solid #2A2A31',
-          padding: '26px 24px',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1180,
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 16,
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* Logo + location */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Image src="/icon.svg" alt="RaudaGo" width={30} height={30} />
-            <div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: '#F3EFE7',
-                  letterSpacing: '-.02em',
-                }}
-              >
-                RaudaGo
-              </div>
-              <div style={{ fontSize: 14, color: '#57545C', marginTop: 1 }}>Culiacán, Sinaloa</div>
-            </div>
-          </div>
-
-          {/* Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
-            <a href="/terminos" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              Términos
-            </a>
-            <a href="/cancelacion" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              Cancelación
-            </a>
-            <a href="/privacidad" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              Privacidad
-            </a>
-            <a href="/codigo-conducta" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              Conducta
-            </a>
-            <a href="/repartidores" style={{ fontSize: 14, color: '#8E8B93', fontWeight: 500 }}>
-              Soy repartidor
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer variant="dark" />
 
     </div>
   );

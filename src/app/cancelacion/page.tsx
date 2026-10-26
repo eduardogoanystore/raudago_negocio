@@ -1,3 +1,6 @@
+import { LEGAL } from '@/config/legal'
+import Footer from '@/components/Footer'
+
 export default function CancelacionPage() {
   return (
     <main style={{ background: '#F3EFE7', minHeight: '100vh', padding: '4rem 1.5rem' }}>
@@ -76,8 +79,8 @@ export default function CancelacionPage() {
               por causas imputables a la plataforma por más de 48 horas continuas, el cliente
               podrá solicitar un crédito proporcional al tiempo no disponible. Las solicitudes
               deben enviarse a{' '}
-              <a href="mailto:jesus.ed13@gmail.com" style={linkStyle}>
-                jesus.ed13@gmail.com
+              <a href={`mailto:${LEGAL.correo}`} style={linkStyle}>
+                {LEGAL.correo}
               </a>{' '}
               dentro de los 7 días naturales siguientes al incidente.
             </p>
@@ -99,8 +102,8 @@ export default function CancelacionPage() {
             <ul style={ulStyle}>
               <li style={liStyle}>
                 Correo:{' '}
-                <a href="mailto:jesus.ed13@gmail.com" style={linkStyle}>
-                  jesus.ed13@gmail.com
+                <a href={`mailto:${LEGAL.correo}`} style={linkStyle}>
+                  {LEGAL.correo}
                 </a>
               </li>
               <li style={liStyle}>
@@ -113,28 +116,7 @@ export default function CancelacionPage() {
           </section>
         </div>
 
-        <footer
-          style={{
-            borderTop: '1px solid #D9D4CA',
-            paddingTop: '1.5rem',
-            marginTop: '3rem',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            fontSize: '0.8rem',
-            color: '#6B6B75',
-          }}
-        >
-          <a href="/" style={footerLinkStyle}>
-            &larr; Inicio
-          </a>
-          <a href="/terminos" style={footerLinkStyle}>
-            Términos y Condiciones
-          </a>
-          <a href="/privacidad" style={footerLinkStyle}>
-            Aviso de Privacidad
-          </a>
-        </footer>
+        <Footer variant="light" />
       </div>
     </main>
   )
@@ -169,12 +151,6 @@ const liStyle: React.CSSProperties = {
 }
 
 const linkStyle: React.CSSProperties = {
-  color: '#6C47FF',
-  fontWeight: 600,
-  textDecoration: 'none',
-}
-
-const footerLinkStyle: React.CSSProperties = {
   color: '#6C47FF',
   fontWeight: 600,
   textDecoration: 'none',

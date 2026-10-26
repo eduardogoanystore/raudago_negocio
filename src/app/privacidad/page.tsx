@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import { publicClient } from '@/graphql/client'
+import Footer from '@/components/Footer'
 
 const QUERY = `
   query LegalDoc($tipo: String!) {
@@ -92,27 +93,7 @@ export default async function PrivacidadPage() {
           <p style={pStyle}>Contenido no disponible temporalmente.</p>
         )}
 
-        <footer
-          style={{
-            borderTop: '1px solid #D9D4CA',
-            paddingTop: '1.5rem',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            fontSize: '0.8rem',
-            color: '#6B6B75',
-          }}
-        >
-          <a href="/" style={footerLinkStyle}>
-            &larr; Inicio
-          </a>
-          <a href="/terminos" style={footerLinkStyle}>
-            Términos y Condiciones
-          </a>
-          <a href="/codigo-conducta" style={footerLinkStyle}>
-            Código de Conducta
-          </a>
-        </footer>
+        <Footer variant="light" />
       </div>
     </main>
   )
@@ -152,10 +133,4 @@ const liStyle: React.CSSProperties = {
   color: '#3A3A44',
   lineHeight: 1.75,
   marginBottom: '0.5rem',
-}
-
-const footerLinkStyle: React.CSSProperties = {
-  color: '#6C47FF',
-  fontWeight: 600,
-  textDecoration: 'none',
 }
