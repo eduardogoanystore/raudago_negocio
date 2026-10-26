@@ -49,15 +49,18 @@ export default function ContactoPage() {
             <strong>Responsable:</strong> {LEGAL.nombre}
           </div>
           <div>
-            <strong>Ubicación:</strong> Culiacán, Sinaloa, México ·{' '}
-            <a href="/privacidad" style={linkStyle}>
-              Domicilio del responsable
+            <strong>Ubicación:</strong> Culiacán, Sinaloa, México
+          </div>
+          <div>
+            <strong>Domicilio del responsable:</strong>{' '}
+            <a href="https://www.raudago.com/privacidad" style={linkStyle}>
+              consultar el Aviso de Privacidad
             </a>
           </div>
           <div>
             <strong>Teléfono:</strong>{' '}
             <a href={`tel:${LEGAL.telefono}`} style={linkStyle}>
-              {LEGAL.telefono}
+              667 227 7437
             </a>
           </div>
           <div>

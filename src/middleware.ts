@@ -11,6 +11,16 @@ function isTokenExpired(token: string): boolean {
   }
 }
 
+function repartidorHost(requestHost: string): string {
+  // localhost:XXXX  →  repartidor.localhost:XXXX
+  // raudago.com     →  repartidor.raudago.com
+  if (requestHost.startsWith('localhost') || requestHost.match(/^127\.0\.0\.1/)) {
+    return `repartidor.${requestHost}`;
+  }
+  const base = requestHost.replace(/^www\./, '');
+  return `repartidor.${base}`;
+}
+
 function portalHost(requestHost: string): string {
   // localhost:XXXX  →  negocio.localhost:XXXX
   // raudago.com     →  negocio.raudago.com
@@ -31,12 +41,14 @@ function rootHost(requestHost: string): string {
 
 const PUBLIC_PATHS = [
   '/',
+  '/contacto',
   '/terminos',
   '/privacidad',
   '/cancelacion',
   '/codigo-conducta',
   '/politicas-internas',
   '/repartidores',
+  '/repartidor', // redirect → repartidor.raudago.com/alta
 ];
 
 function isPublicPath(pathname: string): boolean {
@@ -70,6 +82,7 @@ const RESERVED_SLUGS = new Set([
   'planes', 'verificar-email', 'verificar-email-negocio', 'repartidores',
   'terminos', 'privacidad', 'cancelacion', 'codigo-conducta',
   'politicas-internas', 'api', '_next', 'espera', 'contacto',
+  'repartidor', // never treat as business slug
 ]);
 
 // ─── rauda_attr — atribución de campaña (first-touch) ────────────────────────
@@ -95,16 +108,24 @@ function buildRaudaAttr(url: URL): string | null {
   });
 }
 
+function cookieDomain(host: string): string | undefined {
+  return host.includes('raudago.com') ? '.raudago.com' : undefined;
+}
+
 function applyRaudaAttr(request: NextRequest, response: NextResponse): NextResponse {
   if (request.cookies.get('rauda_attr')) return response;
 
   const attr = buildRaudaAttr(request.nextUrl);
   if (attr) {
+    const host = request.headers.get('host') ?? '';
+    const domain = cookieDomain(host);
     response.cookies.set('rauda_attr', attr, {
       maxAge: 60 * 60 * 24 * 30, // 30 días
       path: '/',
       httpOnly: false, // necesita ser legible desde server actions
       sameSite: 'lax',
+      secure: !!domain,
+      ...(domain && { domain }),
     });
   }
   return response;
@@ -129,8 +150,16 @@ export function middleware(request: NextRequest) {
 
   // ── Dominio raíz ────────────────────────────────────────────────────────────
   if (!isPortalDomain) {
-    // Ruta pública → pasar
-    if (isPublicPath(pathname)) return NextResponse.next();
+    // /repartidor → repartidor.raudago.com/alta conservando query string (301)
+    if (pathname === '/repartidor' || pathname.startsWith('/repartidor/')) {
+      const dest = new URL(request.url);
+      dest.host = repartidorHost(host);
+      dest.pathname = '/alta';
+      return NextResponse.redirect(dest, 301);
+    }
+
+    // Ruta pública → pasar (+ capturar atribución con cookie compartida)
+    if (isPublicPath(pathname)) return applyRaudaAttr(request, NextResponse.next());
 
     // Cualquier ruta no pública en el dominio raíz → redirect al portal
     const dest = new URL(request.url);
