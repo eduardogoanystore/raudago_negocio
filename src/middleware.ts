@@ -57,6 +57,7 @@ const PORTAL_AUTH_FREE = [
   '/verificar-email',
   '/verificar-email-negocio',
   '/registro/espera',
+  '/contacto',
 ];
 
 function isPortalAuthFree(pathname: string): boolean {
@@ -68,7 +69,7 @@ const RESERVED_SLUGS = new Set([
   'login', 'login-nip', 'registro', 'aceptar-invitacion', 'exito',
   'planes', 'verificar-email', 'verificar-email-negocio', 'repartidores',
   'terminos', 'privacidad', 'cancelacion', 'codigo-conducta',
-  'politicas-internas', 'api', '_next', 'espera',
+  'politicas-internas', 'api', '_next', 'espera', 'contacto',
 ]);
 
 // ─── rauda_attr — atribución de campaña (first-touch) ────────────────────────
