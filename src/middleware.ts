@@ -119,6 +119,13 @@ export function middleware(request: NextRequest) {
   const hasValidToken = !!token && !isTokenExpired(token);
   console.log(`[MW] ${host} ${pathname} | token=${token ? 'yes' : 'NO'} valid=${hasValidToken}`);
 
+  // ── Redirect permanente /acceso → /registro (301) ───────────────────────────
+  if (pathname === '/acceso') {
+    const dest = new URL('/registro', request.url);
+    request.nextUrl.searchParams.forEach((v, k) => dest.searchParams.set(k, v));
+    return NextResponse.redirect(dest, 301);
+  }
+
   // ── Dominio raíz ────────────────────────────────────────────────────────────
   if (!isPortalDomain) {
     // Ruta pública → pasar
