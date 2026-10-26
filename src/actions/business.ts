@@ -74,6 +74,56 @@ export interface SlugActionState {
   slug?: string;
 }
 
+// ─── updateBusinessProfile — formulario diferido de espera ───────────────────
+
+const UPDATE_BUSINESS_PROFILE = `
+  mutation UpdateBusinessProfile($input: UpdateBusinessInput!) {
+    updateBusiness(input: $input) {
+      id
+    }
+  }
+`;
+
+export interface UpdateBusinessProfileState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function updateBusinessProfileAction(
+  _prevState: UpdateBusinessProfileState | null,
+  formData: FormData,
+): Promise<UpdateBusinessProfileState> {
+  const description = (formData.get('description') as string)?.trim() || null;
+  const phone = (formData.get('phone') as string)?.trim() || null;
+  const schedule = (formData.get('schedule') as string)?.trim() || null;
+
+  const input: Record<string, string> = {};
+  if (description) input.description = description;
+  if (phone) input.phone = phone;
+  if (schedule) input.schedule = schedule;
+
+  if (Object.keys(input).length === 0) {
+    return { error: 'No hay cambios que guardar.' };
+  }
+
+  let client;
+  try {
+    client = await getServerClient();
+  } catch {
+    return { error: 'Error al conectar con el servidor. Intenta de nuevo.' };
+  }
+
+  try {
+    await client.request<{ updateBusiness: { id: string } }>(UPDATE_BUSINESS_PROFILE, { input });
+  } catch (err: unknown) {
+    const gqlErr = err as { response?: { errors?: { message: string }[] } };
+    const raw = gqlErr?.response?.errors?.[0]?.message ?? '';
+    return { error: raw || 'No se pudo guardar. Intenta de nuevo.' };
+  }
+
+  return { success: true };
+}
+
 export async function updateBusinessSlugAction(
   currentSlug: string,
   formData: FormData

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { OnboardingHeader } from './OnboardingHeader';
 import { createNegocioCheckoutAction } from '@/actions/onboarding';
 import type { SubscriptionPlan } from '@/lib/subscription';
@@ -218,6 +219,7 @@ interface Props {
 }
 
 export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval, businessName, prelanzamiento }: Props) {
+  const router = useRouter();
   const sorted = [...plans].sort((a, b) => a.sort_order - b.sort_order);
   const [interval, setInterval] = useState<Interval>(initialInterval ?? 'WEEK');
   const defaultPlan = (initialPlanKey ? sorted.find((p) => p.key === initialPlanKey) : null) ?? sorted[0];
@@ -478,7 +480,7 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
                   type="button"
                   onClick={() => {
                     setReservaToast(true);
-                    setTimeout(() => setReservaToast(false), 3500);
+                    setTimeout(() => router.push('/registro/espera'), 1500);
                   }}
                   style={{
                     height: 56, borderRadius: 999, border: 'none',
