@@ -70,10 +70,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               telephone: LEGAL.telefono,
               address: {
                 '@type': 'PostalAddress',
-                streetAddress: 'Calle Tarascos 2579',
                 addressLocality: 'Culiacán',
                 addressRegion: 'Sinaloa',
-                postalCode: '80160',
                 addressCountry: 'MX',
               },
             }),

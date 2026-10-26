@@ -49,7 +49,10 @@ export default function ContactoPage() {
             <strong>Responsable:</strong> {LEGAL.nombre}
           </div>
           <div>
-            <strong>Domicilio:</strong> {LEGAL.domicilio}
+            <strong>Domicilio del responsable:</strong>{' '}
+            <a href="/privacidad" style={linkStyle}>
+              ver Aviso de Privacidad
+            </a>
           </div>
           <div>
             <strong>Teléfono:</strong>{' '}
