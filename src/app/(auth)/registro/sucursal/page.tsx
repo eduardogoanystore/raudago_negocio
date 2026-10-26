@@ -47,6 +47,13 @@ function RegistroSucursalContent() {
       return;
     }
 
+    if (!place.neighborhood || place.neighborhood.trim().length < 2) {
+      setError(
+        'No pudimos identificar la colonia de esta dirección. Intenta buscar directamente el nombre de tu colonia (ej. "Centro", "Las Quintas").'
+      );
+      return;
+    }
+
     const form = e.currentTarget;
     const formData = new FormData(form);
 
