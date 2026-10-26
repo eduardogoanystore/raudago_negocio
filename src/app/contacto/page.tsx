@@ -49,9 +49,9 @@ export default function ContactoPage() {
             <strong>Responsable:</strong> {LEGAL.nombre}
           </div>
           <div>
-            <strong>Domicilio del responsable:</strong>{' '}
+            <strong>Ubicación:</strong> Culiacán, Sinaloa, México ·{' '}
             <a href="/privacidad" style={linkStyle}>
-              ver Aviso de Privacidad
+              Domicilio del responsable
             </a>
           </div>
           <div>
