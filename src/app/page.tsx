@@ -27,7 +27,16 @@ const SUBSCRIPTION_PLANS_QUERY = `
   }
 `;
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'ref'];
+  const qsParts = utmKeys.filter((k) => params[k]).map((k) => `${k}=${encodeURIComponent(String(params[k]))}`);
+  const registroHref = qsParts.length > 0 ? `/registro?${qsParts.join('&')}` : '/registro';
+
   let plans: SubscriptionPlan[] = [];
   try {
     const res = await fetch(ENDPOINT, {
@@ -212,10 +221,10 @@ export default async function LandingPage() {
           #rg-nav-inner {
             padding: 12px 16px;
           }
-          #rg-nav-links a:not([href="/registro"]) {
+          #rg-nav-links a:not(.rg-reg-cta) {
             display: none;
           }
-          #rg-nav-links a[href="/registro"] {
+          #rg-nav-links a.rg-reg-cta {
             height: 38px;
             padding: 0 16px;
             font-size: 13px;
@@ -311,7 +320,8 @@ export default async function LandingPage() {
               Planes
             </a>
             <a
-              href="/registro"
+              href={registroHref}
+              className="rg-reg-cta"
               style={{
                 height: 44,
                 padding: '0 20px',
@@ -365,7 +375,7 @@ export default async function LandingPage() {
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <a
-              href="/registro"
+              href={registroHref}
               style={{
                 height: 58,
                 padding: '0 28px',
@@ -919,12 +929,12 @@ export default async function LandingPage() {
           </h2>
 
           <p style={{ fontSize: 19, color: '#8E8B93', lineHeight: '28px' }}>
-            Regístrate, prueba tres días y decide después. Culiacán primero; seguimos con el resto de Sinaloa.
+            Regístrate, prueba 7 días gratis y decide después. Culiacán primero; seguimos con el resto de Sinaloa.
           </p>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <a
-              href="/registro"
+              href={registroHref}
               style={{
                 height: 58,
                 padding: '0 30px',
