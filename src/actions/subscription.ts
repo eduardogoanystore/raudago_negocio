@@ -97,7 +97,7 @@ export async function getPlans(
         variables: { subscriberType },
         operationName: 'subscriptionPlans',
       }),
-      cache: 'no-store',
+      next: { tags: ['subscription_plans_v2'], revalidate: false },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = (await res.json()) as {
