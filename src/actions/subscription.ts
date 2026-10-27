@@ -97,7 +97,7 @@ export async function getPlans(
         variables: { subscriberType },
         operationName: 'subscriptionPlans',
       }),
-      next: { tags: ['subscription_plans'], revalidate: 3600 },
+      next: { tags: ['subscription_plans'], revalidate: false },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = (await res.json()) as {
