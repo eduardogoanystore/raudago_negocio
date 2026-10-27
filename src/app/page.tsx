@@ -43,7 +43,7 @@ export default async function LandingPage({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: SUBSCRIPTION_PLANS_QUERY, operationName: 'subscriptionPlans' }),
-      next: { tags: ['subscription_plans_v2'], revalidate: false },
+      next: { tags: ['subscription_plans'], revalidate: 3600 },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = (await res.json()) as {
