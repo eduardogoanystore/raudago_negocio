@@ -29,7 +29,17 @@ interface DriverPlan {
   promoMonths: number;
 }
 
-export default async function RepartidorLanding() {
+export default async function RepartidorLanding({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'ref'];
+  const qsParts = utmKeys.filter((k) => params[k]).map((k) => `${k}=${encodeURIComponent(String(params[k]))}`);
+  const altaBase = 'https://repartidor.raudago.com/alta';
+  const altaHref = qsParts.length > 0 ? `${altaBase}?${qsParts.join('&')}` : altaBase;
+
   let plan: DriverPlan | null = null;
   try {
     const data = await publicClient.request<{ subscriptionPlans: DriverPlan[] }>(
@@ -75,7 +85,7 @@ export default async function RepartidorLanding() {
             </span>
           </div>
           <div style={{ marginLeft: 'auto' }}>
-            <a href="https://repartidor.raudago.com/alta" style={{ height: 42, padding: '0 20px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <a href={altaHref} style={{ height: 42, padding: '0 20px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               Regístrate gratis
             </a>
           </div>
@@ -98,7 +108,7 @@ export default async function RepartidorLanding() {
               Un solo app. Ves el precio, la distancia y el destino antes de decir que sí. Sin regatear, sin sorpresas, sin dictar nada por audio.
             </p>
             <div>
-              <a href="https://repartidor.raudago.com/alta" style={{ height: 58, padding: '0 32px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+              <a href={altaHref} style={{ height: 58, padding: '0 32px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                 Quiero repartir con RaudaGo →
               </a>
             </div>
@@ -245,7 +255,7 @@ export default async function RepartidorLanding() {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <a href="https://repartidor.raudago.com/alta" style={{ height: 58, padding: '0 40px', borderRadius: 999, background: '#C6FF3D', color: '#121214', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <a href={altaHref} style={{ height: 58, padding: '0 40px', borderRadius: 999, background: '#C6FF3D', color: '#121214', fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               Empezar mis {trialDays} gratis
             </a>
           </div>
@@ -286,7 +296,7 @@ export default async function RepartidorLanding() {
             ))}
           </div>
           <a
-            href="https://repartidor.raudago.com/alta"
+            href={altaHref}
             style={{ height: 62, padding: '0 44px', borderRadius: 999, background: '#6C47FF', color: '#ffffff', fontSize: 18, fontWeight: 700, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', textDecoration: 'none' }}
           >
             Registrarme gratis →
