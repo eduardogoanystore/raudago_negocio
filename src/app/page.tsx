@@ -319,6 +319,9 @@ export default async function LandingPage({
             <a href="#planes" style={{ fontSize: 15, fontWeight: 600, color: '#57544f', padding: '0 6px' }}>
               Planes
             </a>
+            <a href="/repartidores" style={{ fontSize: 15, fontWeight: 600, color: '#57544f', padding: '0 6px' }}>
+              Soy Repartidor
+            </a>
             <a
               href={registroHref}
               className="rg-reg-cta"
