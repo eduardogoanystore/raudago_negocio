@@ -28,7 +28,6 @@ const SUBSCRIPTION_PLANS_QUERY = `
       priceWeeklyCents
       priceMonthlyCents
       priceAnnualCents
-      promoMonths
       promoPriceCents
       promoWeeks
       trialDays
@@ -71,9 +70,8 @@ interface RawPlan {
   priceWeeklyCents: number;
   priceMonthlyCents: number;
   priceAnnualCents: number;
-  promoMonths: number;
   promoPriceCents: number | null;
-  promoWeeks: number | null;
+  promoWeeks: number;
   trialDays: number;
   sortOrder: number;
   features: string[] | null;
@@ -117,9 +115,8 @@ export async function getPlans(
       price_weekly_cents: p.priceWeeklyCents,
       price_monthly_cents: p.priceMonthlyCents,
       price_annual_cents: p.priceAnnualCents,
-      promo_months: p.promoMonths,
-      promo_price_cents: p.promoPriceCents,
       promo_weeks: p.promoWeeks,
+      promo_price_cents: p.promoPriceCents,
       trial_days: p.trialDays,
       sort_order: p.sortOrder,
       features: p.features,

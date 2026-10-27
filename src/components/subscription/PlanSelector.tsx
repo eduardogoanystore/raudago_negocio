@@ -34,15 +34,10 @@ function getPriceForInterval(plan: SubscriptionPlan, interval: Interval): number
 }
 
 function getPromoPrice(plan: SubscriptionPlan, interval: Interval): number | null {
-  if (!plan.promo_price_cents || !plan.promo_months) return null;
-  // promo_price_cents is stored as monthly equivalent
-  if (interval === 'WEEK') return Math.round(plan.promo_price_cents / 4);
-  if (interval === 'MONTH') return plan.promo_price_cents;
-  if (interval === 'YEAR') {
-    const monthlyFull = Math.round(plan.price_annual_cents / 12);
-    return monthlyFull - Math.round((monthlyFull - plan.promo_price_cents) * (plan.promo_months / 12));
-  }
-  return null;
+  if (!plan.promo_price_cents || !plan.promo_weeks) return null;
+  // promo_price_cents es el precio semanal de la Fase 2 del Subscription Schedule
+  if (interval === 'WEEK') return plan.promo_price_cents;
+  return null; // promo solo aplica en cobros semanales (Fase 2)
 }
 
 export function PlanSelector({
@@ -216,7 +211,7 @@ export function PlanSelector({
                       {formatPrice(price)}
                     </span>
                     <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                      primeros {plan.promo_months} {plan.promo_months === 1 ? 'mes' : 'meses'}
+                      primeras {plan.promo_weeks} semanas
                     </div>
                   </div>
                 ) : (
@@ -292,8 +287,7 @@ export function PlanSelector({
                 padding: '0.4rem 0.75rem',
               }}
             >
-              Precio promo los primeros {selectedPlan.promo_months}{' '}
-              {selectedPlan.promo_months === 1 ? 'mes' : 'meses'}:{' '}
+              Precio promo las primeras {selectedPlan.promo_weeks} semanas:{' '}
               <strong>{formatPrice(promoPrice)}</strong>
             </div>
           )}

@@ -14,7 +14,7 @@ export interface SubscriptionPlan {
   priceAnnualCents: number;
   promoPriceCents: number | null;
   trialDays: number;
-  promoMonths: number;
+  promoWeeks: number;
   sortOrder: number;
   isFree: boolean;
   maxBranches: number | null;
@@ -55,10 +55,10 @@ interface PlanesSectionProps {
 export function PlanesSection({ plans }: PlanesSectionProps) {
   const [interval, setInterval] = useState<Interval>('WEEK');
   const sorted = [...plans].sort((a, b) => a.sortOrder - b.sortOrder);
-  const promoPlan = sorted.find((p) => p.promoMonths > 0 && p.promoPriceCents != null);
+  const promoPlan = sorted.find((p) => p.promoWeeks > 0 && p.promoPriceCents != null);
 
   // Planes con promo (para el banner y el paso 2)
-  const promoPlans = sorted.filter((p) => p.promoMonths > 0 && p.promoPriceCents != null && !p.isFree);
+  const promoPlans = sorted.filter((p) => p.promoWeeks > 0 && p.promoPriceCents != null && !p.isFree);
 
   // Plan con precios mensual/anual para calcular descuentos del paso 3
   const pricedPlan = sorted.find((p) => p.priceMonthlyCents > 0 && p.priceWeeklyCents > 0 && !p.isFree && p.key !== 'cadenas');
@@ -71,7 +71,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
 
   // Días de prueba (del primer plan con trial)
   const trialDays = promoPlans[0]?.trialDays ?? 7;
-  const promoWeeks = promoPlans[0] ? promoPlans[0].promoMonths * 4 : 4;
+  const promoWeeks = promoPlans[0] ? promoPlans[0].promoWeeks : 4;
 
   return (
     <section
@@ -153,7 +153,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
             }}
           >
             <span style={{ fontSize: 16, color: '#121214' }}>
-              Básico y Starter: <strong>{promoPlan.trialDays} días gratis</strong>, luego precio de promo las primeras <strong>{promoPlan.promoMonths * 4} semanas</strong>
+              Básico y Starter: <strong>{promoPlan.trialDays} días gratis</strong>, luego precio de promo las primeras <strong>{promoPlan.promoWeeks} semanas</strong>
             </span>
           </div>
         )}
@@ -244,7 +244,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
             const isCadenas = plan.key === 'cadenas';
             const price = planPrice(plan, interval);
             const note = savingsNote(plan, interval);
-            const hasPromo = plan.promoMonths > 0 && plan.promoPriceCents != null;
+            const hasPromo = plan.promoWeeks > 0 && plan.promoPriceCents != null;
 
             if (isCadenas) {
               return (
@@ -391,7 +391,7 @@ export function PlanesSection({ plans }: PlanesSectionProps) {
                   {!plan.isFree && <span style={{ fontSize: 15, color: '#57544f' }}>{note}</span>}
                   {hasPromo && (
                     <span style={{ fontSize: 14, color: '#57544f' }}>
-                      Primeras {plan.promoMonths * 4} semanas a{' '}
+                      Primeras {plan.promoWeeks} semanas a{' '}
                       <strong style={{ color: '#121214' }}>
                         ${(plan.promoPriceCents! / 100).toLocaleString('es-MX')}/semana
                       </strong>

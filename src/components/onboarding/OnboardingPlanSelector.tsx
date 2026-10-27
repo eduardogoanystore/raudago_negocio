@@ -233,8 +233,7 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
 
   const trialDays = selectedPlan?.trial_days ?? null;
   const promoWeeks =
-    selectedPlan?.promo_weeks ??
-    (selectedPlan?.promo_months ? selectedPlan.promo_months * 4 : null);
+    selectedPlan?.promo_weeks ?? null;
   const promoPrice =
     selectedPlan?.promo_price_cents != null
       ? selectedPlan.promo_price_cents / 100
@@ -453,11 +452,11 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
               <span style={{ color: '#57544f' }}>Hoy</span>
               <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>$0</strong>
             </div>
-            {selectedPlan && selectedPlan.promo_months > 0 && selectedPlan.promo_price_cents != null && (
+            {selectedPlan && selectedPlan.promo_weeks > 0 && selectedPlan.promo_price_cents != null && (
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                <span style={{ color: '#57544f' }}>Promo {selectedPlan.promo_months} meses</span>
+                <span style={{ color: '#57544f' }}>Promo {selectedPlan.promo_weeks} semanas</span>
                 <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>
-                  ${(selectedPlan.promo_price_cents / 100).toLocaleString('es-MX')}/mes
+                  ${(selectedPlan.promo_price_cents / 100).toLocaleString('es-MX')}/sem
                 </strong>
               </div>
             )}

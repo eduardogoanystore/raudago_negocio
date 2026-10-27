@@ -14,7 +14,7 @@ const LANDING_QUERY = `
       priceWeeklyCents
       promoPriceCents
       trialDays
-      promoMonths
+      promoWeeks
     }
   }
 `;
@@ -26,7 +26,7 @@ interface DriverPlan {
   priceWeeklyCents: number;
   promoPriceCents: number | null;
   trialDays: number;
-  promoMonths: number;
+  promoWeeks: number;
 }
 
 export default async function RepartidorLanding({
@@ -56,7 +56,7 @@ export default async function RepartidorLanding({
 
   const trialDays = plan ? `${plan.trialDays} días` : '7 días';
   const promoPrice = plan?.promoPriceCents ? `$${(plan.promoPriceCents / 100).toFixed(2)}` : '$82.50';
-  const promoWeeks = plan ? plan.promoMonths * 4 : 4;
+  const promoWeeks = plan ? plan.promoWeeks : 4;
   const promoLength = `${promoWeeks} semanas`;
   const normalPrice = plan?.priceWeeklyCents ? `$${(plan.priceWeeklyCents / 100).toFixed(0)}` : '$150';
 

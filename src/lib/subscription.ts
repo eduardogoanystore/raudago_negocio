@@ -6,16 +6,14 @@ export interface SubscriptionPlan {
   price_weekly_cents: number;
   price_monthly_cents: number;
   price_annual_cents: number;
-  promo_months: number;
+  promo_weeks: number;
   promo_price_cents: number | null;
-  promo_interval?: string | null;
   trial_days: number;
   sort_order: number;
   features?: string[] | null;
   max_orders_weekly?: number | null;
   max_branches?: number | null;
   max_members?: number | null;
-  promo_weeks?: number | null;
   is_default?: boolean;
 }
 

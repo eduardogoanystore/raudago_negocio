@@ -16,7 +16,7 @@ const SUBSCRIPTION_PLANS_QUERY = `
       priceAnnualCents
       promoPriceCents
       trialDays
-      promoMonths
+      promoWeeks
       sortOrder
       isFree
       maxBranches
