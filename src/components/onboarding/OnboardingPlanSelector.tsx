@@ -284,11 +284,20 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
           {/* Interval selector */}
           <div style={{ display: 'flex', gap: 4, padding: 5, borderRadius: 999, background: '#FFFDFA', border: '1px solid #DED7C9', width: 'fit-content' }}>
             {(
-              [
-                { value: 'WEEK'  as Interval, label: 'Semanal' },
-                { value: 'MONTH' as Interval, label: 'Mensual', save: '−5%'  },
-                { value: 'YEAR'  as Interval, label: 'Anual',   save: '−25%' },
-              ] as const
+              (() => {
+                const ref = selectedPlan;
+                const monthSave = ref && ref.price_weekly_cents > 0
+                  ? Math.round((1 - ref.price_monthly_cents / (ref.price_weekly_cents * 4)) * 100)
+                  : 5;
+                const yearSave = ref && ref.price_weekly_cents > 0
+                  ? Math.round((1 - ref.price_annual_cents / (ref.price_weekly_cents * 52)) * 100)
+                  : 25;
+                return [
+                  { value: 'WEEK'  as Interval, label: 'Semanal' },
+                  { value: 'MONTH' as Interval, label: 'Mensual', save: `−${monthSave}%` },
+                  { value: 'YEAR'  as Interval, label: 'Anual',   save: `−${yearSave}%`  },
+                ];
+              })()
             ).map((opt) => (
               <button
                 key={opt.value}
