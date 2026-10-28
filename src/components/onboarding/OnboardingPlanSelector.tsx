@@ -245,7 +245,13 @@ export function OnboardingPlanSelector({ plans, initialPlanKey, initialInterval,
     setCheckoutError(null);
     startTransition(async () => {
       const result = await createNegocioCheckoutAction(selectedPlan.id, interval);
-      if (result?.error) setCheckoutError(result.error);
+      if (result?.error) {
+        if (result.error === 'NO_SLOT_AVAILABLE') {
+          router.push('/registro/espera');
+          return;
+        }
+        setCheckoutError(result.error);
+      }
     });
   }
 
