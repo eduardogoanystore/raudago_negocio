@@ -60,6 +60,15 @@ const RESUME_SUBSCRIPTION_MUTATION = `
   }
 `;
 
+const CLAIM_ANNUAL_GUARANTEE_MUTATION = `
+  mutation claimAnnualGuarantee {
+    claimAnnualGuarantee {
+      refundAmountCents
+      refundId
+    }
+  }
+`;
+
 // ─── Raw plan shape returned by the GraphQL endpoint ─────────────────────────
 
 interface RawPlan {
@@ -138,6 +147,7 @@ export async function getMySubscription(): Promise<UserSubscription | null> {
         id: string;
         status: string;
         billingCycleType: string;
+        currentPeriodStart: string | null;
         currentPeriodEnd: string | null;
         cancelAtPeriodEnd: boolean;
         plan: { id: string; name: string };
@@ -150,6 +160,7 @@ export async function getMySubscription(): Promise<UserSubscription | null> {
       id: s.id,
       status: s.status,
       billingCycleType: s.billingCycleType,
+      currentPeriodStart: s.currentPeriodStart,
       currentPeriodEnd: s.currentPeriodEnd,
       cancelAtPeriodEnd: s.cancelAtPeriodEnd,
       subscription_plan: s.plan,
@@ -217,6 +228,21 @@ export async function reactivateSubscriptionAction(): Promise<{ error?: string }
     return {
       error:
         gqlErr?.response?.errors?.[0]?.message ?? 'Error al reactivar la suscripción.',
+    };
+  }
+}
+
+export async function claimAnnualGuaranteeAction(): Promise<{ refundAmountCents?: number; refundId?: string; error?: string }> {
+  try {
+    const client = await getAuthClient();
+    const data = await client.request<{
+      claimAnnualGuarantee: { refundAmountCents: number; refundId: string };
+    }>(CLAIM_ANNUAL_GUARANTEE_MUTATION);
+    return data.claimAnnualGuarantee;
+  } catch (err: unknown) {
+    const gqlErr = err as { response?: { errors?: { message: string }[] } };
+    return {
+      error: gqlErr?.response?.errors?.[0]?.message ?? 'Error al procesar la garantía.',
     };
   }
 }

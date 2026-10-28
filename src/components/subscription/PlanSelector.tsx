@@ -5,6 +5,7 @@ import {
   startSubscriptionCheckout,
   cancelSubscriptionAction,
   reactivateSubscriptionAction,
+  claimAnnualGuaranteeAction,
 } from '@/actions/subscription';
 import type { SubscriptionPlan, UserSubscription } from '@/lib/subscription';
 
@@ -58,10 +59,23 @@ export function PlanSelector({
   const [managingLoading, setManagingLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manageError, setManageError] = useState<string | null>(null);
+  const [guaranteeResult, setGuaranteeResult] = useState<{ refundAmountCents: number } | null>(null);
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? plans[0];
   const hasActiveSub =
     currentSubscription && ['ACTIVE', 'TRIALING'].includes(currentSubscription.status);
+
+  // Garantía 14 días plan anual: solo si es anual, activo, y dentro de 14 días del inicio del periodo
+  const annualGuaranteeDaysLeft = (() => {
+    if (!currentSubscription) return null;
+    if (currentSubscription.billingCycleType !== 'YEAR') return null;
+    if (!['ACTIVE'].includes(currentSubscription.status)) return null;
+    if (!currentSubscription.currentPeriodStart) return null;
+    const start = new Date(currentSubscription.currentPeriodStart);
+    const daysSince = (Date.now() - start.getTime()) / (1000 * 60 * 60 * 24);
+    const daysLeft = Math.floor(14 - daysSince);
+    return daysLeft > 0 ? daysLeft : null;
+  })();
 
   async function handleCheckout() {
     if (!selectedPlan) return;
@@ -90,6 +104,23 @@ export function PlanSelector({
         setManageError(result.error);
       } else {
         window.location.reload();
+      }
+    } catch {
+      setManageError('Error inesperado. Intenta de nuevo.');
+    } finally {
+      setManagingLoading(false);
+    }
+  }
+
+  async function handleClaimGuarantee() {
+    setManagingLoading(true);
+    setManageError(null);
+    try {
+      const result = await claimAnnualGuaranteeAction();
+      if (result.error) {
+        setManageError(result.error);
+      } else if (result.refundAmountCents) {
+        setGuaranteeResult({ refundAmountCents: result.refundAmountCents });
       }
     } catch {
       setManageError('Error inesperado. Intenta de nuevo.');
@@ -391,26 +422,59 @@ export function PlanSelector({
               </button>
             </div>
           ) : (
-            <div>
-              <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                Puedes cancelar en cualquier momento. Seguiras teniendo acceso hasta el fin del periodo de facturacion.
-              </p>
-              <button
-                onClick={handleCancel}
-                disabled={managingLoading}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  background: 'transparent',
-                  color: managingLoading ? '#9CA3AF' : '#B91C1C',
-                  border: `1px solid ${managingLoading ? '#D1D5DB' : '#FECACA'}`,
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  cursor: managingLoading ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {managingLoading ? 'Procesando...' : 'Cancelar suscripcion'}
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {guaranteeResult ? (
+                <div style={{ background: '#ECFDF5', borderRadius: '0.5rem', padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#065F46' }}>
+                  Reembolso de {formatPrice(guaranteeResult.refundAmountCents)} procesado. Tu suscripción ha sido cancelada.
+                </div>
+              ) : (
+                <>
+                  {annualGuaranteeDaysLeft !== null && (
+                    <div>
+                      <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                        Garantía de 14 días — te quedan <strong>{annualGuaranteeDaysLeft} día{annualGuaranteeDaysLeft !== 1 ? 's' : ''}</strong>. Cancela ahora y recibe un reembolso proporcional.
+                      </p>
+                      <button
+                        onClick={handleClaimGuarantee}
+                        disabled={managingLoading}
+                        style={{
+                          padding: '0.625rem 1.25rem',
+                          background: managingLoading ? '#D1FAE5' : '#059669',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          cursor: managingLoading ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {managingLoading ? 'Procesando...' : 'Cancelar con reembolso proporcional'}
+                      </button>
+                    </div>
+                  )}
+                  <div>
+                    <p style={{ color: '#6B7280', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                      Puedes cancelar en cualquier momento. Seguiras teniendo acceso hasta el fin del periodo de facturacion.
+                    </p>
+                    <button
+                      onClick={handleCancel}
+                      disabled={managingLoading}
+                      style={{
+                        padding: '0.625rem 1.25rem',
+                        background: 'transparent',
+                        color: managingLoading ? '#9CA3AF' : '#B91C1C',
+                        border: `1px solid ${managingLoading ? '#D1D5DB' : '#FECACA'}`,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        cursor: managingLoading ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {managingLoading ? 'Procesando...' : 'Cancelar suscripcion'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

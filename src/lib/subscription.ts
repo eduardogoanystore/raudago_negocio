@@ -21,6 +21,7 @@ export interface UserSubscription {
   id: string;
   status: string;
   billingCycleType: string;
+  currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   subscription_plan: {
@@ -35,6 +36,7 @@ export const MY_SUBSCRIPTION_QUERY = `
       id
       status
       billingCycleType
+      currentPeriodStart
       currentPeriodEnd
       cancelAtPeriodEnd
       plan {
