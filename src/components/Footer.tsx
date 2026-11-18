@@ -22,12 +22,8 @@ export default function Footer({ variant = 'dark' }: { variant?: 'dark' | 'light
         }}
       >
         <div>
-          {'© 2026 RaudaGo · Operado por '}
-          {LEGAL.nombre}
-          {' · Culiacán, Sinaloa · Tel. '}
-          <a href={`tel:${LEGAL.telefono}`} style={lightLinkStyle}>
-            {LEGAL.telefono}
-          </a>
+          {'© 2026 RaudaGo · Operado por Jesús Eduardo Murrieta Rosas · RFC MURJ871203NY9 · Calle Tarascos 2579, Col. Industrial El Palmito, C.P. 80160, Culiacán, Sinaloa · Tel. '}
+          <a href="tel:6672277437" style={lightLinkStyle}>667 227 7437</a>
           {' · '}
           <a href={`mailto:${LEGAL.correo}`} style={lightLinkStyle}>
             {LEGAL.correo}
@@ -68,12 +64,8 @@ export default function Footer({ variant = 'dark' }: { variant?: 'dark' | 'light
         }}
       >
         <div style={{ fontSize: 13, color: '#57545C' }}>
-          {'© 2026 RaudaGo · Operado por '}
-          {LEGAL.nombre}
-          {' · Culiacán, Sinaloa · Tel. '}
-          <a href={`tel:${LEGAL.telefono}`} style={darkLinkStyle}>
-            {LEGAL.telefono}
-          </a>
+          {'© 2026 RaudaGo · Operado por Jesús Eduardo Murrieta Rosas · RFC MURJ871203NY9 · Calle Tarascos 2579, Col. Industrial El Palmito, C.P. 80160, Culiacán, Sinaloa · Tel. '}
+          <a href="tel:6672277437" style={darkLinkStyle}>667 227 7437</a>
           {' · '}
           <a href={`mailto:${LEGAL.correo}`} style={darkLinkStyle}>
             {LEGAL.correo}
